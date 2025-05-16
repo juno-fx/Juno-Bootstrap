@@ -1,0 +1,8 @@
+ingress:
+  enabled: true
+  config:
+    controller:
+      hostPort:
+        enabled: true
+      service:
+        enabled: false

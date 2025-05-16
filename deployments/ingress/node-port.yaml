@@ -1,0 +1,7 @@
+ingress:
+  enabled: true
+  config:
+    controller:
+      service:
+        enabled: true
+        type: NodePort

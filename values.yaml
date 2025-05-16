@@ -1,0 +1,96 @@
+# Juno Cluster Bootstrap
+#
+#
+genesis:
+  url: "https://github.com/juno-fx/Genesis-Deployment.git"
+  version: "v1.1"
+  config:
+    ### Container registry containing the Juno images
+    registry:
+    ### Image Pull Secret (Uncomment if using)
+    # image_pull_secret:
+    ### hostname of the server: my-genesis.example.com
+    host:
+    ### Juno License Key
+    license_key:
+    ### Environment Variables
+    env:
+    ### Google OAuth (Uncomment If using)
+    #GOOGLE_CLIENT_ID:
+    #GOOGLE_CLIENT_SECRET:
+    ### AWS Cognito (Uncomment If using)
+    #COGNITO_CLIENT_ID:
+    #COGNITO_CLIENT_SECRET:
+    #COGNITO_ISSUER:
+    # Owner Configuration
+    titan:
+      owner:
+      uid:
+      email:
+#
+#
+# Ingress Overrides
+# https://github.com/kubernetes/ingress-nginx/blob/main/charts/ingress-nginx/values.yaml
+ingress:
+  url: "https://kubernetes.github.io/ingress-nginx"
+  version: 4.12.1
+#  Map override values to the following config key
+#  config:
+#    # Uncomment this to pull from a local registry.
+#    global:
+#      image:
+#        registry:
+#
+#
+# GPU Operator Overrides
+# https://github.com/NVIDIA/gpu-operator/blob/main/deployments/gpu-operator/values.yaml
+gpu:
+  url: "https://helm.ngc.nvidia.com/nvidia"
+  version: v24.9.0
+#  Map override values to the following config key
+#  config:
+#    # Uncomment this to pull from a local registry.
+#    validator:
+#      repository:
+#    operator:
+#        repository:
+#        initContainer:
+#          repository:
+#    driver:
+#      repository:
+#    manager:
+#      repository:
+#    toolkit:
+#      repository:
+#    devicePlugin:
+#      repository:
+#    dcgm:
+#      repository:
+#    dcgmExporter:
+#      repository:
+#    gfd:
+#      repository:
+#    migManager:
+#      repository:
+#    nodeStatusExporter:
+#      repository:
+#    gds:
+#      repository:
+#    gdrcopy:
+#      repository:
+#    vgpuManager:
+#      repository:
+#      driverManager:
+#        repository:
+#    vgpuDeviceManager:
+#      repository:
+#    vfioManager:
+#      repository:
+#    kataManager:
+#      repository:
+#    sandboxDevicePlugin:
+#      repository:
+#    ccManager:
+#      repository:
+#    node-feature-discovery:
+#      repository:
