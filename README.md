@@ -55,8 +55,8 @@ configuration for your deployment.
    1. If you are using the predefined Juno deployment configurations, run the following command (replace the `<predefined juno deployment>` with the path to the predefined Juno deployment configuration):
        ```bash
           helm install juno ./chart/ \
-           -f <predefined juno deployment 1> \
-           -f <predefined juno deployment 2> \
+           -f <predefined juno deployment> \
+           -f <predefined juno deployment> \
            -f ./.values.yaml
        ```
     2. If you are using your own configuration, run the following command:
