@@ -52,11 +52,11 @@ configuration for your deployment.
     ```
 3. Configure your deployment using the predefined [Juno Deployment Configurations](/deployments/README.md) (optional, but recommended).
 4. Install Juno:
-   1. If you are using the predefined Juno deployment configurations, run the following command (replace the `<predefined juno deployment>` with the path to the predefined Juno deployment configuration):
+   1. If you are using the predefined Juno deployment configurations, run the following command (replace the `<predefined deployment>` with the path to the predefined Juno deployment configuration):
        ```bash
           helm install juno ./chart/ \
-           -f <predefined juno deployment> \
-           -f <predefined juno deployment> \
+           -f <predefined deployment> \
+           -f <predefined deployment> \
            -f ./.values.yaml
        ```
     2. If you are using your own configuration, run the following command:
