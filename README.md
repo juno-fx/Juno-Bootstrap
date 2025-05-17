@@ -50,4 +50,17 @@ configuration for your deployment.
     ```bash
     kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
     ```
-3. Finally, assemble your deployment by following the [Deployment Docs](/deployments/README.md).
+3. Configure your deployment using the predefined [Juno Deployment Configurations](/deployments/README.md) (optional, but recommended).
+4. Install Juno:
+   1. If you are using the predefined Juno deployment configurations, run the following command (replace the `<predefined juno deployment>` with the path to the predefined Juno deployment configuration):
+       ```bash
+          helm install juno ./chart/ \
+           -f <predefined juno deployment 1> \
+           -f <predefined juno deployment 2> \
+           -f ./.values.yaml
+       ```
+    2. If you are using your own configuration, run the following command:
+         ```bash
+             helm install juno ./chart/ \
+              -f ./.values.yaml
+         ```
