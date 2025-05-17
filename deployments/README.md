@@ -1,4 +1,4 @@
-# Juno Service Configuration
+# Predefined Deployment Configurations
 
 Juno ships preconfigured values files that override the base chart depending on the desired configuration. These are 
 organized into special interest groups (SIGs) to allow for easier management of the configuration.
