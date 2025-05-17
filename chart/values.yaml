@@ -8,8 +8,6 @@ ingress:
   config:
     controller:
       kind: DaemonSet
-      nodeSelector:
-        juno-innovations.com/service: "true"
 gpu:
   enabled: true
   version: v24.9.0
