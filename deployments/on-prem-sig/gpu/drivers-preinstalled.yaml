@@ -1,0 +1,7 @@
+gpu:
+  enabled: true
+  config:
+    driver:
+      enabled: false
+    toolkit:
+      enabled: false

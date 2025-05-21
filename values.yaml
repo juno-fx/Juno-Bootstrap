@@ -1,0 +1,100 @@
+# Juno Cluster Bootstrap
+genesis:
+  ### Genesis Helm repo  (REQUIRED)
+  url: "https://github.com/juno-fx/Genesis-Deployment.git"
+  ### Genesis Helm repo branch to deploy  (REQUIRED)
+  version: "v1.1"
+  config:
+    ### Container registry containing the Juno images  (REQUIRED)
+    registry:
+    ### Image Pull Secret (Uncomment if using)
+    # image_pull_secret:
+    ### hostname of the server: my-genesis.example.com  (REQUIRED)
+    host:
+    ### Juno License Key  (REQUIRED)
+    license_key:
+    ### Environment Variables
+    env:
+    # You must have either Google or AWS Cognito configured.
+    # Uncomment one of the following (REQUIRED)
+    ### Google OAuth (Uncomment If using)
+    #  GOOGLE_CLIENT_ID:
+    #  GOOGLE_CLIENT_SECRET:
+    ### AWS Cognito (Uncomment If using)
+    #  COGNITO_CLIENT_ID:
+    #  COGNITO_CLIENT_SECRET:
+    #  COGNITO_ISSUER:
+    # Owner Configuration
+    titan:
+      # Username of the owner (REQUIRED)
+      owner:
+      # POSIX UID of the owner (REQUIRED)
+      uid:
+      # Email of the owner. This should be the email used by either
+      # of the above configured authentication services. (REQUIRED)
+      email:
+
+# Ingress Overrides
+# https://github.com/kubernetes/ingress-nginx/blob/main/charts/ingress-nginx/values.yaml
+#ingress:
+#  url: "https://kubernetes.github.io/ingress-nginx"
+#  version: 4.12.1
+#  Map override values to the following config key
+#  config:
+#    # Uncomment this to pull from a local registry.
+#    global:
+#      image:
+#        registry:
+
+# GPU Operator Overrides
+# https://github.com/NVIDIA/gpu-operator/blob/main/deployments/gpu-operator/values.yaml
+#gpu:
+#  url: "https://helm.ngc.nvidia.com/nvidia"
+#  version: v24.9.0
+#  Map override values to the following config key
+#  config:
+#    # Uncomment this to pull from a local registry.
+#    validator:
+#      repository:
+#    operator:
+#        repository:
+#        initContainer:
+#          repository:
+#    driver:
+#      repository:
+#    manager:
+#      repository:
+#    toolkit:
+#      repository:
+#    devicePlugin:
+#      repository:
+#    dcgm:
+#      repository:
+#    dcgmExporter:
+#      repository:
+#    gfd:
+#      repository:
+#    migManager:
+#      repository:
+#    nodeStatusExporter:
+#      repository:
+#    gds:
+#      repository:
+#    gdrcopy:
+#      repository:
+#    vgpuManager:
+#      repository:
+#      driverManager:
+#        repository:
+#    vgpuDeviceManager:
+#      repository:
+#    vfioManager:
+#      repository:
+#    kataManager:
+#      repository:
+#    sandboxDevicePlugin:
+#      repository:
+#    ccManager:
+#      repository:
+#    node-feature-discovery:
+#      repository:
