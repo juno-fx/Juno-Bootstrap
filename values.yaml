@@ -24,6 +24,13 @@ genesis:
     #  COGNITO_CLIENT_ID:
     #  COGNITO_CLIENT_SECRET:
     #  COGNITO_ISSUER:
+    ### LDAP (Uncomment if using | BETA)
+    #  LDAP_URI:
+    #  LDAP_BIND_DN:
+    #  LDAP_BIND_PASSWORD:
+    #  LDAP_SEARCH_BASE:
+    #  LDAP_EMAIL_ATTRIBUTE:
+    #  LDAP_USERNAME_ATTRIBUTE:
     # Owner Configuration
     titan:
       # Username of the owner (REQUIRED)
