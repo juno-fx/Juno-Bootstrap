@@ -25,12 +25,16 @@ genesis:
     #  COGNITO_CLIENT_SECRET:
     #  COGNITO_ISSUER:
     ### LDAP (Uncomment if using | BETA)
+    #  The CA cert is optional.
+    #  It is to support LDAPS certs signed with your own CA.
+    #  It expects a PAM-formatted CA cert exported as base64 string.
     #  LDAP_URI:
     #  LDAP_BIND_DN:
     #  LDAP_BIND_PASSWORD:
     #  LDAP_SEARCH_BASE:
     #  LDAP_EMAIL_ATTRIBUTE:
     #  LDAP_USERNAME_ATTRIBUTE:
+    #  LDAPS_CA_CERT_BASE64:
     # Owner Configuration
     titan:
       # Username of the owner (REQUIRED)
