@@ -1,9 +1,25 @@
 # Juno Cluster Bootstrap
+auth:
+  ### ArgoCD repo authentications
+  # This section allows you to configure authentication for
+  # ArgoCD to access private repositories. This is a direct
+  # mapping to the ArgoCD repo-creds secrets. The stringData
+  # section is a yaml pass-through. So you don't need to
+  # use username and password, you can use any of the supported
+  # authentication methods supported by ArgoCD.
+  # https://argo-cd.readthedocs.io/en/stable/operator-manual/argocd-repositories-yaml/
+  # - name: github-creds
+  #   stringData:
+  #      url: "https://github.com"
+  #      username: "someone"
+  #      password: "github_personal_access_token"
+
+# Genesis Deployment Configuration
 genesis:
   ### Genesis Helm repo  (REQUIRED)
   url: "https://github.com/juno-fx/Genesis-Deployment.git"
   ### Genesis Helm repo branch to deploy  (REQUIRED)
-  version: "v1.1"
+  version: "v1.2"
   config:
     ### Container registry containing the Juno images  (REQUIRED)
     registry:
@@ -105,3 +121,25 @@ genesis:
 #      repository:
 #    node-feature-discovery:
 #      repository:
+
+### Extra Deployments
+# This provides an easy way to hook in additional custom
+# ArgoCD compatible Helm Applications.
+#
+# note: The entirety of this values file is passed to each
+# additional deployment as is. For example, to access the
+# genesis version, your chart can access it as follows:
+# {{ .Values.genesis.version }}
+#
+# Any additional values you want to pass to the deployment
+# can be added normally to this file. For example, to pass
+# a custom value of `customValue` to each deployment, you
+# can add it to this file as follows:
+# customValue: "my-custom-value"
+# Then access it in your chart as follows:
+# {{ .Values.customValue }}
+extraDeployments:
+#  - repoURL: https://some-git-repo.com
+#    path: .
+#    targetRevision: main
+#    name: custom
