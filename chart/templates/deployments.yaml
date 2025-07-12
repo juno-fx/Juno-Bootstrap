@@ -1,0 +1,32 @@
+{{- range .Values.extraDeployments }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: "{{ .name }}"
+  namespace: argocd
+  finalizers:
+    - "resources-finalizer.argocd.argoproj.io"
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  sources:
+    - repoURL: "{{ .repoURL }}"
+      path: "{{ .path }}"
+      targetRevision: "{{ .targetRevision }}"
+      helm:
+        releaseName: "{{ .name }}"
+        values: |-
+          {{- toYaml $.Values | toString | nindent 10 }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: true
+    syncOptions:
+      - CreateNamespace=true
+---
+{{- end }}

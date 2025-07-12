@@ -1,0 +1,12 @@
+{{- range .Values.auth }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "{{ .name }}"
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repo-creds
+stringData:
+{{- toYaml .stringData | nindent 2 }}
+---
+{{- end }}
