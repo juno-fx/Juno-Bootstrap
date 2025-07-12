@@ -7,7 +7,7 @@ auth:
   # section is a yaml pass-through. So you don't need to
   # use username and password, you can use any of the supported
   # authentication methods supported by ArgoCD.
-  # https://argo-cd.readthedocs.io/en/stable/operator-manual/argocd-repositories-yaml/
+  # https://argo-cd.readthedocs.io/en/stable/operator-manual/argocd-repo-creds-yaml/
   # - name: github-creds
   #   stringData:
   #      url: "https://github.com"
