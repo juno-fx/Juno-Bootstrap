@@ -141,3 +141,4 @@ extraDeployments:
 #    path: .
 #    targetRevision: main
 #    name: my-extra-deployment
+#    namespace: my-namespace

@@ -3,6 +3,7 @@ extraDeployments:
 #    repoURL: https://some-git-repo.com
 #    path: .
 #    targetRevision: main
+#    namespace: argocd
 auth:
 #  - name: github-creds
 #    stringData:
