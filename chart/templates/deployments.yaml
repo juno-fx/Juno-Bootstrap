@@ -1,8 +1,11 @@
 {{- range .Values.extraDeployments }}
+{{- $name := .name }}
+{{- $root := $.Values }}
+{{- $customValues := index $root $name }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: "{{ .name }}"
+  name: "{{ $name }}"
   namespace: argocd
   finalizers:
     - "resources-finalizer.argocd.argoproj.io"
@@ -12,15 +15,15 @@ spec:
   project: default
   destination:
     server: https://kubernetes.default.svc
-    namespace: argocd
+    namespace: "{{ .namespace }}"
   sources:
     - repoURL: "{{ .repoURL }}"
       path: "{{ .path }}"
       targetRevision: "{{ .targetRevision }}"
       helm:
-        releaseName: "{{ .name }}"
+        releaseName: "{{ $name }}"
         values: |-
-          {{- toYaml $.Values | toString | nindent 10 }}
+          {{- include "omitNulls" $customValues | nindent 10 }}
   syncPolicy:
     automated:
       prune: true
