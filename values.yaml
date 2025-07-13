@@ -126,20 +126,18 @@ genesis:
 # This provides an easy way to hook in additional custom
 # ArgoCD compatible Helm Applications.
 #
-# note: The entirety of this values file is passed to each
-# additional deployment as is. For example, to access the
-# genesis version, your chart can access it as follows:
-# {{ .Values.genesis.version }}
-#
 # Any additional values you want to pass to the deployment
 # can be added normally to this file. For example, to pass
 # a custom value of `customValue` to each deployment, you
 # can add it to this file as follows:
-# customValue: "my-custom-value"
+#my-extra-deployment:
+#  customValue: "my-custom-value"
+#  nested:
+#    thing: "works!"
 # Then access it in your chart as follows:
 # {{ .Values.customValue }}
 extraDeployments:
 #  - repoURL: https://some-git-repo.com
 #    path: .
 #    targetRevision: main
-#    name: custom
+#    name: my-extra-deployment
