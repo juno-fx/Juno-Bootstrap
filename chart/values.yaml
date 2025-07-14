@@ -15,6 +15,7 @@ genesis:
   version: v1.2
   config:
     host:
+    http_scheme: https
 ingress:
   enabled: true
   chart: ingress-nginx

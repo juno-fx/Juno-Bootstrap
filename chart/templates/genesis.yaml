@@ -22,7 +22,7 @@ spec:
           {{- toYaml .Values.genesis.config | toString | nindent 10 }}
         parameters:
           - name: "env.NEXTAUTH_URL"
-            value: "https://{{ .Values.genesis.config.host }}/api/auth"
+            value: "{{ .Values.genesis.config.http_scheme }}://{{ .Values.genesis.config.host }}/api/auth"
   syncPolicy:
     automated:
       prune: true
