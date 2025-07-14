@@ -27,6 +27,8 @@ genesis:
     # image_pull_secret:
     ### hostname of the server: my-genesis.example.com  (REQUIRED)
     host:
+    ### defaults to https
+    # http_scheme: http
     ### Juno License Key  (REQUIRED)
     license_key:
     ### Environment Variables
