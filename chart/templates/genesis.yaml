@@ -19,7 +19,7 @@ spec:
       helm:
         releaseName: genesis
         values: |-
-          {{- toYaml .Values.genesis.config | toString | nindent 10 }}
+          {{- include "omitNulls" .Values.genesis.config | nindent 10 }}
         parameters:
           - name: "env.NEXTAUTH_URL"
             value: "{{ .Values.genesis.config.http_scheme }}://{{ .Values.genesis.config.host }}/api/auth"
