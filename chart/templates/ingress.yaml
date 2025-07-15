@@ -19,7 +19,7 @@ spec:
       targetRevision: {{ .Values.ingress.version }}
       helm:
         values: |-
-          {{- toYaml .Values.ingress.config | toString | nindent 10 }}
+          {{- include "omitNulls" .Values.ingress.config | nindent 10 }}
         releaseName: nginx-ingress-controller
   syncPolicy:
     automated:
