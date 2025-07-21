@@ -23,7 +23,7 @@ spec:
       targetRevision: "{{ .Values.gpu.version }}"
       helm:
         values: |-
-          {{- toYaml .Values.gpu.config | toString | nindent 10 }}
+          {{- include "omitNulls" .Values.gpu.config | nindent 10 }}
         releaseName: gpu-operator
   syncPolicy:
     automated:
