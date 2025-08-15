@@ -1,0 +1,29 @@
+name: Rebuild Downstreams
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  rebuild-downstreams:
+    runs-on: X64
+    strategy:
+      matrix:
+        repo:
+          - juno-fx/K8s-Playbooks
+    steps:
+      - name: Generate a token
+        id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.JUNO_CI_APP_ID }}
+          private-key: ${{ secrets.JUNO_CI_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - name: Trigger downstream workflow
+        uses: peter-evans/repository-dispatch@6846232b0e1bfd17c14dce7ac13fd3fcefe22c0c
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          repository: ${{ matrix.repo }}
+          event-type: juno_bootstrap_main_merge
