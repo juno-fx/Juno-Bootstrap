@@ -29,8 +29,6 @@ genesis:
     host:
     ### defaults to https
     # http_scheme: http
-    ### Juno License Key  (REQUIRED)
-    license_key:
     ### Environment Variables
     env:
     # You must have either Google or AWS Cognito configured.
