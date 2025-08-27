@@ -28,7 +28,7 @@ genesis:
     ### hostname of the server: my-genesis.example.com  (REQUIRED)
     host:
     ### defaults to https
-    # http_scheme: http
+    http_scheme: https
     ### Environment Variables
     env:
     # You must have either Google or AWS Cognito configured.
