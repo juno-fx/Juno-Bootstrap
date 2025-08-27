@@ -21,7 +21,7 @@ echo
 
 # Hostname (always ask, show system default as suggested value)
 SYSTEM_HOST="${HOSTNAME:-orion.example.com}"  # fallback if HOSTNAME is empty
-read -rp "🌐 Enter the server's public DNS hostname [${SYSTEM_HOST}]: " INPUT_HOST
+read -rp "🌐 Enter the server's public DNS hostname [${SYSTEM_HOST}]: " INPUT_HOST < /dev/tty
 HOSTNAME="${INPUT_HOST:-$SYSTEM_HOST}"
 
 # Validate that it's not an IP address
@@ -32,19 +32,19 @@ fi
 
 # Owner email (env override: OWNER_EMAIL)
 if [[ -z "${OWNER_EMAIL:-}" ]]; then
-    read -rp "📧 Enter the owner email: " OWNER_EMAIL
+    read -rp "📧 Enter the owner email: " OWNER_EMAIL < /dev/tty
 fi
 
 # Owner password (env override: OWNER_PASSWORD)
 if [[ -z "${OWNER_PASSWORD:-}" ]]; then
-    read -rsp "🔑 Enter the default temporary password for the owner: " OWNER_PASSWORD
+    read -rsp "🔑 Enter the default temporary password for the owner: " OWNER_PASSWORD < /dev/tty
     echo
 fi
 
 # Username (env override: USERNAME)
 if [[ -z "${USERNAME:-}" ]]; then
     while true; do
-        read -rp "👤 Enter the username (letters only): " USERNAME
+        read -rp "👤 Enter the username (letters only): " USERNAME < /dev/tty
         if [[ "$USERNAME" =~ ^[A-Za-z]+$ ]]; then
             break
         else
@@ -60,7 +60,7 @@ fi
 
 # UID (env override: USER_UID)
 if [[ -z "${USER_UID:-}" ]]; then
-    read -rp "🆔 Enter the UID for that user: " USER_UID
+    read -rp "🆔 Enter the UID for that user: " USER_UID < /dev/tty
 fi
 
 echo
@@ -80,7 +80,7 @@ echo
 if [[ "${AUTO_CONFIRM:-}" =~ ^[Yy]$ ]]; then
     echo "⚡ AUTO_CONFIRM enabled — skipping prompt."
 else
-    read -rp "❓ Is this information correct? [y/N]: " CONFIRM
+    read -rp "❓ Is this information correct? [y/N]: " CONFIRM < /dev/tty
     CONFIRM="${CONFIRM:-N}"  # default to N if empty
     case "$CONFIRM" in
         [Yy])
@@ -124,7 +124,7 @@ echo
 if [[ "${AUTO_CONFIRM:-}" =~ ^[Yy]$ ]]; then
     echo "⚡ AUTO_CONFIRM enabled — proceeding to run installer."
 else
-    read -rp "❓ Ready to run the installer with sudo? [y/N]: " RUN_INSTALL
+    read -rp "❓ Ready to run the installer with sudo? [y/N]: " RUN_INSTALL < /dev/tty
     RUN_INSTALL="${RUN_INSTALL:-N}"
     if [[ ! "$RUN_INSTALL" =~ ^[Yy]$ ]]; then
         echo "❌ Installation aborted by user."
@@ -141,5 +141,6 @@ echo
 
 # --- Clean up temporary files and extracted directory ---
 echo "🧹 Cleaning up temporary files..."
-rm -rf "$TEMPLATE_FILE" "$TAR_FILE" juno-oneclickfs
+rm -f "$TEMPLATE_FILE" "$TAR_FILE"
+rm -rf juno-oneclickfs
 echo "✅ Cleanup complete!"
