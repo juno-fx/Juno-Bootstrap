@@ -1,0 +1,155 @@
+# Juno Cluster Bootstrap
+auth:
+  ### ArgoCD repo authentications
+  # This section allows you to configure authentication for
+  # ArgoCD to access private repositories. This is a direct
+  # mapping to the ArgoCD repo-creds secrets. The stringData
+  # section is a yaml pass-through. So you don't need to
+  # use username and password, you can use any of the supported
+  # authentication methods supported by ArgoCD.
+  # https://argo-cd.readthedocs.io/en/stable/operator-manual/argocd-repo-creds-yaml/
+  # - name: github-creds
+  #   stringData:
+  #      url: "https://github.com"
+  #      username: "someone"
+  #      password: "github_personal_access_token"
+
+# Genesis Deployment Configuration
+genesis:
+  ### Genesis Helm repo  (REQUIRED)
+  url: "https://github.com/juno-fx/Genesis-Deployment.git"
+  ### Genesis Helm repo branch to deploy  (REQUIRED)
+  version: "v1.4.0"
+  config:
+    ### Container registry containing the Juno images  (REQUIRED)
+    registry: junoinnovations
+    ### Image Pull Secret (Uncomment if using)
+    # image_pull_secret:
+    ### hostname of the server: my-genesis.example.com  (REQUIRED)
+    host: REPLACE-HOST
+    ### defaults to https
+    http_scheme: https
+    ### Environment Variables
+    env:
+    # You must have either Google or AWS Cognito configured.
+    # Uncomment one of the following (REQUIRED)
+    ### Google OAuth (Uncomment If using)
+    #  GOOGLE_CLIENT_ID:
+    #  GOOGLE_CLIENT_SECRET:
+    ### AWS Cognito (Uncomment If using)
+    #  COGNITO_CLIENT_ID:
+    #  COGNITO_CLIENT_SECRET:
+    #  COGNITO_ISSUER:
+    ### LDAP (Uncomment if using)
+    #  LDAP_URI:
+    #  LDAP_BIND_DN:
+    #  LDAP_BIND_PASSWORD:
+    #  LDAP_SEARCH_BASE:
+    #  LDAP_EMAIL_ATTRIBUTE:
+    #  LDAP_USERNAME_ATTRIBUTE:
+    #
+    ### Optional, used to suppoort LDAPS with self-signed certificates.
+    ### To make use of it, pass a Base64-encoded CA certificate that your host certs had been signed with.
+    #  LDAPS_CA_CERT_BASE64:
+    ### Basic Auth (uncomment if using)
+    ### This is the option we provide for local development.
+    ### It is insecure and not recommended for production use.
+    #
+    ### The BASIC_AUTH_EMAIL should match titan.email here for one of the users
+      BASIC_AUTH_EMAIL: REPLACE-EMAIL
+      BASIC_AUTH_PASSWORD: REPLACE-PASSWORD
+    ### Owner Configuration
+    titan:
+      # Username of the owner (REQUIRED)
+      owner: REPLACE-OWNER
+      # POSIX UID of the owner (REQUIRED)
+      uid: REPLACE-UID
+      # Email of the owner. This should be the email used by either
+      # of the above configured authentication services. (REQUIRED)
+      email: REPLACE-EMAIL
+
+# Ingress Overrides
+# https://github.com/kubernetes/ingress-nginx/blob/main/charts/ingress-nginx/values.yaml
+#ingress:
+#  url: "https://kubernetes.github.io/ingress-nginx"
+#  version: 4.12.1
+#  Map override values to the following config key
+#  config:
+#    # Uncomment this to pull from a local registry.
+#    global:
+#      image:
+#        registry:
+
+# GPU Operator Overrides
+# https://github.com/NVIDIA/gpu-operator/blob/main/deployments/gpu-operator/values.yaml
+#gpu:
+#  url: "https://helm.ngc.nvidia.com/nvidia"
+#  version: v24.9.0
+#  Map override values to the following config key
+#  config:
+#    # Uncomment this to pull from a local registry.
+#    validator:
+#      repository:
+#    operator:
+#        repository:
+#        initContainer:
+#          repository:
+#    driver:
+#      repository:
+#    manager:
+#      repository:
+#    toolkit:
+#      repository:
+#    devicePlugin:
+#      repository:
+#    dcgm:
+#      repository:
+#    dcgmExporter:
+#      repository:
+#    gfd:
+#      repository:
+#    migManager:
+#      repository:
+#    nodeStatusExporter:
+#      repository:
+#    gds:
+#      repository:
+#    gdrcopy:
+#      repository:
+#    vgpuManager:
+#      repository:
+#      driverManager:
+#        repository:
+#    vgpuDeviceManager:
+#      repository:
+#    vfioManager:
+#      repository:
+#    kataManager:
+#      repository:
+#    sandboxDevicePlugin:
+#      repository:
+#    ccManager:
+#      repository:
+#    node-feature-discovery:
+#      repository:
+
+### Extra Deployments
+# This provides an easy way to hook in additional custom
+# ArgoCD compatible Helm Applications.
+#
+# Any additional values you want to pass to the deployment
+# can be added normally to this file. For example, to pass
+# a custom value of `customValue` to each deployment, you
+# can add it to this file as follows:
+#my-extra-deployment:
+#  customValue: "my-custom-value"
+#  nested:
+#    thing: "works!"
+# Then access it in your chart as follows:
+# {{ .Values.customValue }}
+extraDeployments:
+#  - repoURL: https://some-git-repo.com
+#    path: .
+#    targetRevision: main
+#    name: my-extra-deployment
+#    namespace: my-namespace
