@@ -40,6 +40,7 @@ check_command() {
 
 check_command kubectl "Please install kubectl: https://kubernetes.io/docs/tasks/tools/"
 check_command helm "Please install Helm: https://helm.sh/docs/intro/install/"
+check_command git "Please install Git: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git"
 
 # --- Verify cluster connectivity ---
 echo "🌐 Verifying connection to Kubernetes cluster..."
@@ -79,6 +80,21 @@ if ! kubectl get deployment -n argocd argocd-server >/dev/null 2>&1; then
     kubectl rollout status deployment/argocd-server -n argocd
 fi
 
+# --- Clone repo to temporary directory ---
+BRANCH="${BRANCH:-main}"
+TMPDIR="$(mktemp -d)"
+REPO_URL="https://github.com/juno-fx/Juno-Bootstrap.git"
+echo "📥 Cloning branch '$BRANCH' from $REPO_URL into $TMPDIR ..."
+git clone --single-branch --branch "$BRANCH" "$REPO_URL" "$TMPDIR"
+echo "✅ Repo cloned."
+
+# --- Determine chart path inside cloned repo ---
+CHART_DIR="$TMPDIR/repos/chart"
+if [[ ! -d "$CHART_DIR" ]]; then
+    echo "❌ Chart directory not found at $CHART_DIR"
+    exit 1
+fi
+
 # --- Perform Helm install ---
 echo
 echo "🚀 Performing Helm install into 'argocd' namespace..."
@@ -88,10 +104,14 @@ VALUES_FILE="${VALUES_FILE:-.values.yaml}"
 # Install or upgrade via Helm
 if helm status "$HELM_RELEASE" -n argocd >/dev/null 2>&1; then
     echo "🔄 Helm release '$HELM_RELEASE' exists, upgrading..."
-    helm upgrade "$HELM_RELEASE" juno-orion/ -f "$VALUES_FILE" -n argocd
+    helm upgrade "$HELM_RELEASE" "$CHART_DIR" -f "$VALUES_FILE" -n argocd
 else
     echo "📦 Installing Helm release '$HELM_RELEASE'..."
-    helm install "$HELM_RELEASE" juno-orion/ -f "$VALUES_FILE" -n argocd
+    helm install "$HELM_RELEASE" "$CHART_DIR" -f "$VALUES_FILE" -n argocd
 fi
 
 echo "✅ Helm deployment completed successfully!"
+
+# --- Clean up temporary directory ---
+rm -rf "$TMPDIR"
+echo "🧹 Temporary files cleaned up."
