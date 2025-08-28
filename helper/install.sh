@@ -21,7 +21,7 @@ echo
 
 # Hostname (always ask, show system default as suggested value)
 SYSTEM_HOST="${HOSTNAME:-orion.example.com}"  # fallback if HOSTNAME is empty
-read -rp "🌐 Enter the server's public DNS hostname [${SYSTEM_HOST}]: " INPUT_HOST
+read -rp "🌐 Enter the server's public DNS hostname [${SYSTEM_HOST}]: " INPUT_HOST < /dev/tty
 HOSTNAME="${INPUT_HOST:-$SYSTEM_HOST}"
 
 # Validate that it's not an IP address
@@ -32,19 +32,19 @@ fi
 
 # Owner email (env override: OWNER_EMAIL)
 if [[ -z "${OWNER_EMAIL:-}" ]]; then
-    read -rp "📧 Enter the owner email: " OWNER_EMAIL
+    read -rp "📧 Enter the owner email: " OWNER_EMAIL < /dev/tty
 fi
 
 # Owner password (env override: OWNER_PASSWORD)
 if [[ -z "${OWNER_PASSWORD:-}" ]]; then
-    read -rsp "🔑 Enter the default temporary password for the owner: " OWNER_PASSWORD
+    read -rsp "🔑 Enter the default temporary password for the owner: " OWNER_PASSWORD < /dev/tty
     echo
 fi
 
 # Username (env override: USERNAME)
 if [[ -z "${USERNAME:-}" ]]; then
     while true; do
-        read -rp "👤 Enter the username (letters only): " USERNAME
+        read -rp "👤 Enter the username (letters only): " USERNAME < /dev/tty
         if [[ "$USERNAME" =~ ^[A-Za-z]+$ ]]; then
             break
         else
@@ -60,7 +60,7 @@ fi
 
 # UID (env override: USER_UID)
 if [[ -z "${USER_UID:-}" ]]; then
-    read -rp "🆔 Enter the UID for that user: " USER_UID
+    read -rp "🆔 Enter the UID for that user: " USER_UID < /dev/tty
 fi
 
 echo
@@ -80,7 +80,7 @@ echo
 if [[ "${AUTO_CONFIRM:-}" =~ ^[Yy]$ ]]; then
     echo "⚡ AUTO_CONFIRM enabled — skipping prompt."
 else
-    read -rp "❓ Is this information correct? [y/N]: " CONFIRM
+    read -rp "❓ Is this information correct? [y/N]: " CONFIRM < /dev/tty
     CONFIRM="${CONFIRM:-N}"  # default to N if empty
     case "$CONFIRM" in
         [Yy])
@@ -121,7 +121,7 @@ if [[ -n "${DEPLOY_TARGET:-}" ]]; then
     CHOICE="$DEPLOY_TARGET"
     echo "⚡ DEPLOY_TARGET set to: $CHOICE"
 else
-    read -rp "Enter choice [1-3]: " CHOICE
+    read -rp "Enter choice [1-3]: " CHOICE < /dev/tty
 fi
 
 case "$CHOICE" in
