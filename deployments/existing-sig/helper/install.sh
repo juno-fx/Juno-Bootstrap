@@ -107,19 +107,35 @@ if [[ ! -d "$CHART_DIR" ]]; then
     exit 1
 fi
 
+# --- Determine values files ---
+BARE_VALUES="$TMPDIR/deployments/existing-sig/bare/bare.yaml"
+if [[ ! -f "$BARE_VALUES" ]]; then
+    echo "❌ Bare values file not found at $BARE_VALUES"
+    exit 1
+fi
+
+USER_VALUES="${VALUES_FILE:-.values.yaml}"
+if [[ ! -f "$USER_VALUES" ]]; then
+    echo "❌ User values file not found at $USER_VALUES"
+    exit 1
+fi
+
+echo "✅ Using values files:"
+echo "   - Defaults: $BARE_VALUES"
+echo "   - Overrides: $USER_VALUES"
+
 # --- Perform Helm install ---
 echo
 echo "🚀 Performing Helm install into 'argocd' namespace..."
 HELM_RELEASE="${HELM_RELEASE:-orion}"
-VALUES_FILE="${VALUES_FILE:-.values.yaml}"
 
-# Install or upgrade via Helm
+# Install or upgrade via Helm using both -f arguments
 if helm status "$HELM_RELEASE" -n argocd >/dev/null 2>&1; then
     echo "🔄 Helm release '$HELM_RELEASE' exists, upgrading..."
-    helm upgrade "$HELM_RELEASE" "$CHART_DIR" -f "$VALUES_FILE" -n argocd
+    helm upgrade "$HELM_RELEASE" "$CHART_DIR" -f "$BARE_VALUES" -f "$USER_VALUES" -n argocd
 else
     echo "📦 Installing Helm release '$HELM_RELEASE'..."
-    helm install "$HELM_RELEASE" "$CHART_DIR" -f "$VALUES_FILE" -n argocd
+    helm install "$HELM_RELEASE" "$CHART_DIR" -f "$BARE_VALUES" -f "$USER_VALUES" -n argocd
 fi
 
 echo "✅ Helm deployment completed successfully!"
