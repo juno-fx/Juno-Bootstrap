@@ -55,8 +55,20 @@ echo "✅ Connected to Kubernetes cluster."
 # --- Show cluster nodes ---
 echo
 echo "📋 Listing nodes in the cluster:"
-kubectl get nodes
+kubectl get nodes --show-labels
 echo
+
+# --- Verify at least one node has required label ---
+if ! kubectl get nodes -l juno-innovations.com/service=true --no-headers | grep -q .; then
+    echo "❌ No nodes in the cluster have the label 'juno-innovations.com/service=true'."
+    echo "   Juno's support services require at least one node to have this label."
+    echo
+    echo "   Example command to label a node:"
+    echo "   kubectl label node <NODE_NAME> juno-innovations.com/service=true"
+    echo
+    exit 1
+fi
+echo "✅ At least one node has the required Juno label."
 
 # --- Confirm correct cluster ---
 prompt CONFIRM "❓ Is this the cluster you want to install to? [y/N]: " "N"
