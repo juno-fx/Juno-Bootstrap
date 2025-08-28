@@ -8,6 +8,32 @@ echo "   🚀 Official Juno Innovations One Click Orion Installer"
 echo "==============================================="
 echo
 
+# --- Helper function for SSH-safe prompts ---
+prompt() {
+    local var_name="$1"
+    local prompt_text="$2"
+    local default_value="${3:-}"
+
+    local input=""
+    if [ -t 0 ]; then
+        # stdin is a terminal, safe to read
+        read -rp "$prompt_text" input
+    elif [ -r /dev/tty ]; then
+        # read from /dev/tty if available
+        read -rp "$prompt_text" input < /dev/tty
+    else
+        # fallback: use default automatically
+        input="$default_value"
+        echo "$prompt_text $input (auto)"
+    fi
+
+    # Use default if empty
+    input="${input:-$default_value}"
+
+    # Assign to the variable name
+    printf -v "$var_name" '%s' "$input"
+}
+
 # Branch handling (default to main)
 BRANCH="${BRANCH:-main}"
 echo "📌 Using branch: $BRANCH"
@@ -21,8 +47,8 @@ echo
 
 # Hostname (always ask, show system default as suggested value)
 SYSTEM_HOST="${HOSTNAME:-orion.example.com}"  # fallback if HOSTNAME is empty
-read -rp "🌐 Enter the server's public DNS hostname [${SYSTEM_HOST}]: " INPUT_HOST < /dev/tty
-HOSTNAME="${INPUT_HOST:-$SYSTEM_HOST}"
+prompt INPUT_HOST "🌐 Enter the server's public DNS hostname [$SYSTEM_HOST]: " "$SYSTEM_HOST"
+HOSTNAME="$INPUT_HOST"
 
 # Validate that it's not an IP address
 if [[ "$HOSTNAME" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -31,37 +57,23 @@ if [[ "$HOSTNAME" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
 fi
 
 # Owner email (env override: OWNER_EMAIL)
-if [[ -z "${OWNER_EMAIL:-}" ]]; then
-    read -rp "📧 Enter the owner email: " OWNER_EMAIL < /dev/tty
-fi
+prompt OWNER_EMAIL "📧 Enter the owner email: " "${OWNER_EMAIL:-}"
 
 # Owner password (env override: OWNER_PASSWORD)
-if [[ -z "${OWNER_PASSWORD:-}" ]]; then
-    read -rsp "🔑 Enter the default temporary password for the owner: " OWNER_PASSWORD < /dev/tty
-    echo
-fi
+prompt OWNER_PASSWORD "🔑 Enter the default temporary password for the owner: " "${OWNER_PASSWORD:-}"
 
 # Username (env override: USERNAME)
-if [[ -z "${USERNAME:-}" ]]; then
-    while true; do
-        read -rp "👤 Enter the username (letters only): " USERNAME < /dev/tty
-        if [[ "$USERNAME" =~ ^[A-Za-z]+$ ]]; then
-            break
-        else
-            echo "❌ Invalid username. Must contain only letters (A–Z, a–z)."
-        fi
-    done
-else
-    if ! [[ "$USERNAME" =~ ^[A-Za-z]+$ ]]; then
-        echo "❌ Invalid USERNAME from environment. Must contain only letters (A–Z, a–z)."
-        exit 1
+while true; do
+    prompt USERNAME "👤 Enter the username (letters only): " "${USERNAME:-}"
+    if [[ "$USERNAME" =~ ^[A-Za-z]+$ ]]; then
+        break
+    else
+        echo "❌ Invalid username. Must contain only letters (A–Z, a–z)."
     fi
-fi
+done
 
 # UID (env override: USER_UID)
-if [[ -z "${USER_UID:-}" ]]; then
-    read -rp "🆔 Enter the UID for that user: " USER_UID < /dev/tty
-fi
+prompt USER_UID "🆔 Enter the UID for that user: " "${USER_UID:-}"
 
 echo
 echo "==============================================="
@@ -80,8 +92,7 @@ echo
 if [[ "${AUTO_CONFIRM:-}" =~ ^[Yy]$ ]]; then
     echo "⚡ AUTO_CONFIRM enabled — skipping prompt."
 else
-    read -rp "❓ Is this information correct? [y/N]: " CONFIRM < /dev/tty
-    CONFIRM="${CONFIRM:-N}"  # default to N if empty
+    prompt CONFIRM "❓ Is this information correct? [y/N]: " "N"
     case "$CONFIRM" in
         [Yy])
             echo "👍 Proceeding..."
@@ -121,7 +132,7 @@ if [[ -n "${DEPLOY_TARGET:-}" ]]; then
     CHOICE="$DEPLOY_TARGET"
     echo "⚡ DEPLOY_TARGET set to: $CHOICE"
 else
-    read -rp "Enter choice [1-3]: " CHOICE < /dev/tty
+    prompt CHOICE "Enter choice [1-3]: "
 fi
 
 case "$CHOICE" in
