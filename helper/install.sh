@@ -160,6 +160,6 @@ curl -fsSL "https://raw.githubusercontent.com/juno-fx/Juno-Bootstrap/$BRANCH/dep
 
 # --- Clean up temporary files ---
 echo
-echo "🧹 Cleaning up temporary files..."
+echo "🧹 Cleaning up generated values..."
 rm -f "$TEMPLATE_FILE"
 echo "✅ Cleanup complete!"
