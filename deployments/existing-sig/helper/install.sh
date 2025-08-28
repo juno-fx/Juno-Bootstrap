@@ -89,7 +89,7 @@ git clone --single-branch --branch "$BRANCH" "$REPO_URL" "$TMPDIR"
 echo "✅ Repo cloned."
 
 # --- Determine chart path inside cloned repo ---
-CHART_DIR="$TMPDIR/repos/chart"
+CHART_DIR="$TMPDIR/chart"
 if [[ ! -d "$CHART_DIR" ]]; then
     echo "❌ Chart directory not found at $CHART_DIR"
     exit 1
