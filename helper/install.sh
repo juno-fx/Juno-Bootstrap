@@ -145,7 +145,7 @@ echo "✅ You selected: $TARGET_SCRIPT"
 echo "➡️  Next step: running deployment script from repo..."
 
 # Run the chosen script from GitHub
-curl -fsSL "https://raw.githubusercontent.com/juno-fx/Juno-Bootstrap/$BRANCH/deployment/${TARGET_SCRIPT}" | bash -
+curl -fsSL "https://raw.githubusercontent.com/juno-fx/Juno-Bootstrap/$BRANCH/deployments/${TARGET_SCRIPT}" | bash -
 
 # --- Clean up temporary files ---
 echo
