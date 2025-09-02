@@ -141,5 +141,5 @@ fi
 echo "✅ Helm deployment completed successfully!"
 
 # --- Clean up temporary directory ---
-rm -rf "$TMPDIR"
+sudo rm -rf "$TMPDIR"
 echo "🧹 Temporary files cleaned up."

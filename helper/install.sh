@@ -124,7 +124,6 @@ echo "   🌐 Choose Deployment Target"
 echo "==============================================="
 echo "1) Existing Cluster"
 echo "2) On Prem K3s"
-echo "3) CoreWeave"
 echo
 
 # Allow environment override
@@ -142,9 +141,6 @@ case "$CHOICE" in
     2|"On Prem K3s"|"onprem"|"ansible")
         TARGET_SCRIPT="on-prem-sig/helper/install.sh"
         ;;
-    3|"CoreWeave"|"coreweave")
-        TARGET_SCRIPT="coreweave-sig/helper/install.sh"
-        ;;
     *)
         echo "❌ Invalid selection."
         exit 1
@@ -161,5 +157,5 @@ curl -fsSL "https://raw.githubusercontent.com/juno-fx/Juno-Bootstrap/$BRANCH/dep
 # --- Clean up temporary files ---
 echo
 echo "🧹 Cleaning up generated values..."
-rm -f "$TEMPLATE_FILE"
+sudo rm -f "$TEMPLATE_FILE"
 echo "✅ Cleanup complete!"
