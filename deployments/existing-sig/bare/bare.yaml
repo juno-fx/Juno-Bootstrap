@@ -1,0 +1,6 @@
+# it is assumed the user has configured the ingress and gpu
+ingress:
+  enabled: false
+
+gpu:
+  enabled: false
