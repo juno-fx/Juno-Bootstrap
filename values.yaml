@@ -155,3 +155,26 @@ extraDeployments:
 #    targetRevision: main
 #    name: my-extra-deployment
 #    namespace: my-namespace
+
+
+# This only needs to be filled in for airgapped installs that bootstrap the cluster with our oneclick installer / helper script.
+# It relies on a local registry mirror, such as Harbor's proxycache projects.
+# It removes the need to adjust all images and their respective imagePullSecrets
+# It follows syntax of: https://docs.k3s.io/installation/private-registry
+#_oneclick_registries:
+#  mirrors:
+#    docker.io:
+#      endpoint:
+#        - "http://192.168.0.1/v2/dockerhub-proxy"
+#    ghcr.io:
+#      endpoint:
+#        - "http://192.168.0.1/v2/ghcr-proxy"
+#    nvcr.io:
+#      endpoint:
+#        - "http://192.168.0.1/v2/nvcr-proxy"
+#    quay.io:
+#      endpoint:
+#        - "http://192.168.0.1/v2/quay-proxy"
+#    registry.k8s.io:
+#      endpoint:
+#        - "http://192.168.0.1/v2/registry-k8s-proxy"

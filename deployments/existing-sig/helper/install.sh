@@ -2,31 +2,16 @@
 
 set -euo pipefail
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+# shellcheck source=helper/lib.sh
+JUNO_BOOTSTRAP_ROOT="${SCRIPT_DIR}/../../../"
+source "${JUNO_BOOTSTRAP_ROOT}/helper/lib.sh"
+
 echo
 echo "==============================================="
 echo "   🚀 Official Juno Innovations Existing Cluster Installer"
 echo "==============================================="
 echo
-
-# --- SSH-safe prompt function ---
-prompt() {
-    local var_name="$1"
-    local prompt_text="$2"
-    local default_value="${3:-}"
-
-    local input=""
-    if [ -t 0 ]; then
-        read -rp "$prompt_text" input
-    elif [ -r /dev/tty ]; then
-        read -rp "$prompt_text" input < /dev/tty
-    else
-        input="$default_value"
-        echo "$prompt_text $input (auto)"
-    fi
-
-    input="${input:-$default_value}"
-    printf -v "$var_name" '%s' "$input"
-}
 
 # --- Check prerequisites ---
 check_command() {
@@ -92,23 +77,17 @@ if ! kubectl get deployment -n argocd argocd-server >/dev/null 2>&1; then
     kubectl rollout status deployment/argocd-server -n argocd
 fi
 
-# --- Clone repo to temporary directory ---
-BRANCH="${BRANCH:-main}"
-TMPDIR="$(mktemp -d)"
-REPO_URL="https://github.com/juno-fx/Juno-Bootstrap.git"
-echo "📥 Cloning branch '$BRANCH' from $REPO_URL into $TMPDIR ..."
-git clone --single-branch --branch "$BRANCH" "$REPO_URL" "$TMPDIR"
-echo "✅ Repo cloned."
+
 
 # --- Determine chart path inside cloned repo ---
-CHART_DIR="$TMPDIR/chart"
+CHART_DIR="${JUNO_BOOTSTRAP_ROOT}/chart"
 if [[ ! -d "$CHART_DIR" ]]; then
     echo "❌ Chart directory not found at $CHART_DIR"
     exit 1
 fi
 
 # --- Determine values files ---
-BARE_VALUES="$TMPDIR/deployments/existing-sig/bare/bare.yaml"
+BARE_VALUES="${JUNO_BOOTSTRAP_ROOT}/deployments/existing-sig/bare/bare.yaml"
 if [[ ! -f "$BARE_VALUES" ]]; then
     echo "❌ Bare values file not found at $BARE_VALUES"
     exit 1
@@ -139,7 +118,3 @@ else
 fi
 
 echo "✅ Helm deployment completed successfully!"
-
-# --- Clean up temporary directory ---
-sudo rm -rf "$TMPDIR"
-echo "🧹 Temporary files cleaned up."

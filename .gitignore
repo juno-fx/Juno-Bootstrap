@@ -1,2 +1,5 @@
 .values.yaml
 .devbox
+orion-install-helper
+.orion-helper-scripts
+included-files.txt
