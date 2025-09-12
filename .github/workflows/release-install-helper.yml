@@ -1,0 +1,45 @@
+name: Package the helper script
+
+on:
+  push:
+    paths-ignore:
+      - .gitignore
+      - .github/**
+      - README.md
+      - CONTRIBUTING.md
+
+jobs:
+  release:
+    runs-on:
+      - STANDARD-RUNNER
+    permissions:
+      contents: write
+    steps:
+      - name: Clone Source Code
+        uses: actions/checkout@v4
+
+      - name: Fetch the latest sha for juno_k3s
+        id: commit_shas
+        run: |
+          echo "REPO_SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Package orion-install-helper
+        run: |
+          devbox run make package
+
+      - name: Make a rolling release
+        if: github.ref == 'refs/heads/main'
+        id: release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: "rolling_${{ steps.commit_shas.outputs.JUNO_K3S_SHORT_SHA }}"
+          name: "Orion Install Helper - ${{ steps.commit_shas.outputs.REPO_SHORT_SHA }}"
+          files: orion-install-helper
+          body: |
+            The installer here will interactively guide you through deploying the Orion Platform across any of the supported targets.
+
+            For details, visit our [Quick Start Guide](https://juno-fx.github.io/Orion-Documentation/installation/quick-start/)
+
+            This release was built with commit: ${{ steps.commit_shas.outputs.REPO_SHORT_SHA }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

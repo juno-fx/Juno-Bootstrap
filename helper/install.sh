@@ -2,51 +2,35 @@
 
 set -euo pipefail
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+# shellcheck source=helper/lib.sh
+source "${SCRIPT_DIR}/lib.sh"
+
 echo
 echo "==============================================="
 echo "   🚀 Official Juno Innovations One Click Orion Installer"
 echo "==============================================="
 echo
 
-# --- Helper function for SSH-safe prompts ---
-prompt() {
-    local var_name="$1"
-    local prompt_text="$2"
-    local default_value="${3:-}"
 
-    local input=""
-    if [ -t 0 ]; then
-        # stdin is a terminal, safe to read
-        read -rp "$prompt_text" input
-    elif [ -r /dev/tty ]; then
-        # read from /dev/tty if available
-        read -rp "$prompt_text" input < /dev/tty
-    else
-        # fallback: use default automatically
-        input="$default_value"
-        echo "$prompt_text $input (auto)"
-    fi
 
-    # Use default if empty
-    input="${input:-$default_value}"
-
-    # Assign to the variable name
-    printf -v "$var_name" '%s' "$input"
-}
-
-# Branch handling (default to main)
-BRANCH="${BRANCH:-main}"
-echo "📌 Using branch: $BRANCH"
-
-# Always (re)download values.yaml template
 TEMPLATE_FILE="$(mktemp)"
-echo "📥 Downloading values.yaml template from branch: $BRANCH ..."
-curl -fsSL -o "$TEMPLATE_FILE" "https://raw.githubusercontent.com/juno-fx/Juno-Bootstrap/refs/heads/$BRANCH/helper/values.yaml"
-echo "✅ Template downloaded"
-echo
+cp "$SCRIPT_DIR/values.yaml" "$TEMPLATE_FILE"
+
+# Genesis, ingress-nginx, and GPU Operator repoURL/version (defaults from values.yaml/comments) — only prompt if airgapped
+# ToDo: add support for both OCI and chart repos!!!
+# ToDo: add auth support for git repos
+GENESIS_REPO_URL="${GENESIS_REPO_URL:-https://github.com/juno-fx/Genesis-Deployment.git}"
+GENESIS_VERSION="${GENESIS_VERSION:-v1.4.0}"
+INGRESS_REPO_URL="${INGRESS_REPO_URL:-https://kubernetes.github.io/ingress-nginx}"
+INGRESS_VERSION="${INGRESS_VERSION:-4.12.1}"
+GPU_REPO_URL="${GPU_REPO_URL:-https://helm.ngc.nvidia.com/nvidia}"
+GPU_VERSION="${GPU_VERSION:-v24.9.0}"
 
 # Hostname (always ask, show system default as suggested value)
-SYSTEM_HOST="${HOSTNAME:-orion.example.com}"  # fallback if HOSTNAME is empty
+SYSTEM_HOST="$(hostname -f)"
+SYSTEM_HOST="${SYSTEM_HOST:-orion.example.local}"
 prompt INPUT_HOST "🌐 Enter the server's public DNS hostname [$SYSTEM_HOST]: " "$SYSTEM_HOST"
 HOSTNAME="$INPUT_HOST"
 
@@ -60,7 +44,7 @@ fi
 prompt OWNER_EMAIL "📧 Enter the owner email: " "${OWNER_EMAIL:-}"
 
 # Owner password (env override: OWNER_PASSWORD)
-prompt OWNER_PASSWORD "🔑 Enter the default temporary password for the owner: " "${OWNER_PASSWORD:-}"
+prompt OWNER_PASSWORD "🔑 Enter the temporary password for the owner: " "${OWNER_PASSWORD:-}"
 
 # Username (env override: USERNAME)
 while true; do
@@ -79,7 +63,6 @@ echo
 echo "==============================================="
 echo "   ✅ Collected Installation Information"
 echo "-----------------------------------------------"
-echo "Branch:          $BRANCH"
 echo "Hostname:        $HOSTNAME"
 echo "Owner Email:     $OWNER_EMAIL"
 echo "Owner Password:  [hidden]"
@@ -104,6 +87,19 @@ else
     esac
 fi
 
+
+
+prompt IS_OFFLINE_INSTALL "📦 Is this an offline installation? [y/N]: " "${IS_OFFLINE_INSTALL:-N}"
+if [[ "$IS_OFFLINE_INSTALL" =~ ^[Yy]$ ]]; then
+    prompt GENESIS_REPO_URL "🔗 Enter Genesis chart URL (git) [${GENESIS_REPO_URL}]: " "$GENESIS_REPO_URL"
+    prompt GENESIS_VERSION "🏷️  Enter Genesis chart version [${GENESIS_VERSION}]: " "$GENESIS_VERSION"
+    prompt INGRESS_REPO_URL "🌐 Enter ingress-nginx chart URL (OCI) [${INGRESS_REPO_URL}]: " "$INGRESS_REPO_URL"
+    prompt INGRESS_VERSION "🏷️  Enter ingress-nginx chart version [${INGRESS_VERSION}]: " "$INGRESS_VERSION"
+    prompt GPU_REPO_URL "🖥️  Enter GPU Operator chart URL (OCI) [${GPU_REPO_URL}]: " "$GPU_REPO_URL"
+    prompt GPU_VERSION "🏷️  Enter GPU Operator chart version [${GPU_VERSION}]: " "$GPU_VERSION"
+fi
+
+
 # Always overwrite .values.yaml with updated content
 VALUES_FILE=".values.yaml"
 echo "📝 Writing final $VALUES_FILE..."
@@ -113,6 +109,12 @@ sed \
     -e "s|REPLACE-PASSWORD|$OWNER_PASSWORD|g" \
     -e "s|REPLACE-OWNER|$USERNAME|g" \
     -e "s|REPLACE-UID|$USER_UID|g" \
+    -e "s|REPLACE-GENESIS-URL|$GENESIS_REPO_URL|g" \
+    -e "s|REPLACE-GENESIS-VERSION|$GENESIS_VERSION|g" \
+    -e "s|REPLACE-INGRESS-URL|$INGRESS_REPO_URL|g" \
+    -e "s|REPLACE-INGRESS-VERSION|$INGRESS_VERSION|g" \
+    -e "s|REPLACE-GPU-URL|$GPU_REPO_URL|g" \
+    -e "s|REPLACE-GPU-VERSION|$GPU_VERSION|g" \
     "$TEMPLATE_FILE" > "$VALUES_FILE"
 
 echo "✅ $VALUES_FILE has been created with your configuration."
@@ -125,36 +127,41 @@ echo "==============================================="
 echo "1) Existing Cluster"
 echo "2) On Prem K3s"
 echo
+TARGET_SCRIPT=""
 
-# Allow environment override
-if [[ -n "${DEPLOY_TARGET:-}" ]]; then
-    CHOICE="$DEPLOY_TARGET"
-    echo "⚡ DEPLOY_TARGET set to: $CHOICE"
-else
-    prompt CHOICE "Enter choice [1-3]: "
-fi
+while [[ -z "$TARGET_SCRIPT" ]]; do
+    if [[ -n "${DEPLOY_TARGET:-}" ]]; then
+        CHOICE="$DEPLOY_TARGET"
+        echo "⚡ DEPLOY_TARGET set to: $CHOICE"
+    else
+        prompt CHOICE "Enter choice [1-2]: "
+    fi
 
-case "$CHOICE" in
-    1|"Existing Cluster"|"existing")
-        TARGET_SCRIPT="existing-sig/helper/install.sh"
-        ;;
-    2|"On Prem K3s"|"onprem"|"ansible")
-        TARGET_SCRIPT="on-prem-sig/helper/install.sh"
-        ;;
-    *)
-        echo "❌ Invalid selection."
-        exit 1
-        ;;
-esac
+    case "$CHOICE" in
+        1|"Existing Cluster"|"existing")
+            TARGET_SCRIPT="existing-sig/helper/install.sh"
+            ;;
+        2|"On Prem K3s"|"onprem")
+            TARGET_SCRIPT="on-prem-sig/helper/install.sh"
+            ;;
+        *)
+            echo "❌ Invalid selection."
+            if [[ -n "${DEPLOY_TARGET:-}" ]]; then
+                echo "❌ DEPLOY_TARGET value '$DEPLOY_TARGET' is invalid. Please unset it and try again."
+                exit 1
+            fi
+            ;;
+    esac
+done
 
 echo
 echo "✅ You selected: $TARGET_SCRIPT"
 echo "➡️  Next step: running deployment script from repo..."
 
-# Run the chosen script from GitHub
-curl -fsSL "https://raw.githubusercontent.com/juno-fx/Juno-Bootstrap/$BRANCH/deployments/${TARGET_SCRIPT}" | bash -
+export IS_OFFLINE_INSTALL
 
-# --- Clean up temporary files ---
+"${SCRIPT_DIR}/../deployments/$TARGET_SCRIPT"
+
 echo
 echo "🧹 Cleaning up generated values..."
 sudo rm -f "$TEMPLATE_FILE"

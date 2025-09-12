@@ -5,7 +5,9 @@
     "docker@latest",
     "kubectl@latest",
     "gnumake@latest",
-    "yamlfmt@latest"
+    "yamlfmt@latest",
+    "sharutils@latest",
+    "shellcheck@latest"
   ],
   "shell": {
     "scripts": {

@@ -17,9 +17,9 @@ auth:
 # Genesis Deployment Configuration
 genesis:
   ### Genesis Helm repo  (REQUIRED)
-  url: "https://github.com/juno-fx/Genesis-Deployment.git"
+  url: "REPLACE-GENESIS-URL"
   ### Genesis Helm repo branch to deploy  (REQUIRED)
-  version: "v1.4.0"
+  version: "REPLACE-GENESIS-VERSION"
   config:
     ### Container registry containing the Juno images  (REQUIRED)
     registry: junoinnovations
@@ -71,8 +71,8 @@ genesis:
 # Ingress Overrides
 # https://github.com/kubernetes/ingress-nginx/blob/main/charts/ingress-nginx/values.yaml
 #ingress:
-#  url: "https://kubernetes.github.io/ingress-nginx"
-#  version: 4.12.1
+#  url: "REPLACE-INGRESS-URL"
+#  version: REPLACE-INGRESS-VERSION
 #  Map override values to the following config key
 #  config:
 #    # Uncomment this to pull from a local registry.
@@ -83,8 +83,8 @@ genesis:
 # GPU Operator Overrides
 # https://github.com/NVIDIA/gpu-operator/blob/main/deployments/gpu-operator/values.yaml
 #gpu:
-#  url: "https://helm.ngc.nvidia.com/nvidia"
-#  version: v24.9.0
+#  url: "REPLACE-GPU-URL"
+#  version: REPLACE-GPU-VERSION
 #  Map override values to the following config key
 #  config:
 #    # Uncomment this to pull from a local registry.
