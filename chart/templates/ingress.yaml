@@ -14,8 +14,12 @@ spec:
     server: https://kubernetes.default.svc
     namespace: ingress-nginx
   sources:
-    - repoURL: {{ .Values.ingress.repoURL }}
+    - repoURL: {{ .Values.ingress.url }}
+{{- if .Values.ingress.chartPath }}
+      path: {{ .Values.ingress.chartPath }}
+{{- else }}
       chart: {{ .Values.ingress.chart }}
+{{- end }}
       targetRevision: {{ .Values.ingress.version }}
       helm:
         values: |-

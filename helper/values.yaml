@@ -70,86 +70,12 @@ genesis:
 
 # Ingress Overrides
 # https://github.com/kubernetes/ingress-nginx/blob/main/charts/ingress-nginx/values.yaml
-#ingress:
-#  url: "REPLACE-INGRESS-URL"
-#  version: REPLACE-INGRESS-VERSION
-#  Map override values to the following config key
-#  config:
-#    # Uncomment this to pull from a local registry.
-#    global:
-#      image:
-#        registry:
+ingress:
+  url: "REPLACE-INGRESS-URL"
+  version: REPLACE-INGRESS-VERSION
 
 # GPU Operator Overrides
 # https://github.com/NVIDIA/gpu-operator/blob/main/deployments/gpu-operator/values.yaml
-#gpu:
-#  url: "REPLACE-GPU-URL"
-#  version: REPLACE-GPU-VERSION
-#  Map override values to the following config key
-#  config:
-#    # Uncomment this to pull from a local registry.
-#    validator:
-#      repository:
-#    operator:
-#        repository:
-#        initContainer:
-#          repository:
-#    driver:
-#      repository:
-#    manager:
-#      repository:
-#    toolkit:
-#      repository:
-#    devicePlugin:
-#      repository:
-#    dcgm:
-#      repository:
-#    dcgmExporter:
-#      repository:
-#    gfd:
-#      repository:
-#    migManager:
-#      repository:
-#    nodeStatusExporter:
-#      repository:
-#    gds:
-#      repository:
-#    gdrcopy:
-#      repository:
-#    vgpuManager:
-#      repository:
-#      driverManager:
-#        repository:
-#    vgpuDeviceManager:
-#      repository:
-#    vfioManager:
-#      repository:
-#    kataManager:
-#      repository:
-#    sandboxDevicePlugin:
-#      repository:
-#    ccManager:
-#      repository:
-#    node-feature-discovery:
-#      repository:
-
-### Extra Deployments
-# This provides an easy way to hook in additional custom
-# ArgoCD compatible Helm Applications.
-#
-# Any additional values you want to pass to the deployment
-# can be added normally to this file. For example, to pass
-# a custom value of `customValue` to each deployment, you
-# can add it to this file as follows:
-#my-extra-deployment:
-#  customValue: "my-custom-value"
-#  nested:
-#    thing: "works!"
-# Then access it in your chart as follows:
-# {{ .Values.customValue }}
-extraDeployments:
-#  - repoURL: https://some-git-repo.com
-#    path: .
-#    targetRevision: main
-#    name: my-extra-deployment
-#    namespace: my-namespace
+gpu:
+  url: "REPLACE-GPU-URL"
+  version: REPLACE-GPU-VERSION

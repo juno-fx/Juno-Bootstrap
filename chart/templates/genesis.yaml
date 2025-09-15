@@ -13,8 +13,12 @@ spec:
     server: https://kubernetes.default.svc
     namespace: argocd
   sources:
-    - repoURL: {{ .Values.genesis.repoURL }}
-      path: .
+    - repoURL: {{ .Values.genesis.url }}
+{{- if .Values.genesis.chartPath }}
+      path: {{ .Values.genesis.chartPath }}
+{{- else }}
+      chart: {{ .Values.genesis.chart }}
+{{- end }}
       targetRevision: {{ .Values.genesis.version }}
       helm:
         releaseName: genesis
