@@ -90,12 +90,27 @@ fi
 
 
 prompt IS_OFFLINE_INSTALL "📦 Is this an offline installation? [y/N]: " "${IS_OFFLINE_INSTALL:-N}"
+
 if [[ "$IS_OFFLINE_INSTALL" =~ ^[Yy]$ ]]; then
-    prompt GENESIS_REPO_URL "🔗 Enter Genesis chart URL (git) [${GENESIS_REPO_URL}]: " "$GENESIS_REPO_URL"
+    prompt GENESIS_REPO_URL "🔗 Enter Genesis chart URL [${GENESIS_REPO_URL}]: " "$GENESIS_REPO_URL"
+    prompt GENESIS_IS_GIT "❓ Is this a git repo? [y/N]: " "N"
+    if [[ "$GENESIS_IS_GIT" =~ ^[Yy]$ ]]; then
+        prompt GENESIS_CHART_PATH "📁 Enter the chart path within the repo: " ""
+    fi
     prompt GENESIS_VERSION "🏷️  Enter Genesis chart version [${GENESIS_VERSION}]: " "$GENESIS_VERSION"
-    prompt INGRESS_REPO_URL "🌐 Enter ingress-nginx chart URL (OCI) [${INGRESS_REPO_URL}]: " "$INGRESS_REPO_URL"
+
+    prompt INGRESS_REPO_URL "🌐 Enter ingress-nginx chart URL [${INGRESS_REPO_URL}]: " "$INGRESS_REPO_URL"
+    prompt INGRESS_IS_GIT "❓ Is this a git repo? [y/N]: " "N"
+    if [[ "$INGRESS_IS_GIT" =~ ^[Yy]$ ]]; then
+        prompt INGRESS_CHART_PATH "📁 Enter the chart path within the repo: " ""
+    fi
     prompt INGRESS_VERSION "🏷️  Enter ingress-nginx chart version [${INGRESS_VERSION}]: " "$INGRESS_VERSION"
-    prompt GPU_REPO_URL "🖥️  Enter GPU Operator chart URL (OCI) [${GPU_REPO_URL}]: " "$GPU_REPO_URL"
+
+    prompt GPU_REPO_URL "🖥️  Enter GPU Operator chart URL [${GPU_REPO_URL}]: " "$GPU_REPO_URL"
+    prompt GPU_IS_GIT "❓ Is this a git repo? [y/N]: " "N"
+    if [[ "$GPU_IS_GIT" =~ ^[Yy]$ ]]; then
+        prompt GPU_CHART_PATH "📁 Enter the chart path within the repo: " ""
+    fi
     prompt GPU_VERSION "🏷️  Enter GPU Operator chart version [${GPU_VERSION}]: " "$GPU_VERSION"
 fi
 
@@ -117,8 +132,17 @@ sed \
     -e "s|REPLACE-GPU-VERSION|$GPU_VERSION|g" \
     "$TEMPLATE_FILE" > "$VALUES_FILE"
 
+
+
 echo "✅ $VALUES_FILE has been created with your configuration."
 echo
+
+if [[ -n "${INGRESS_CHART_PATH:-}" ]]; then
+    sed -i "/^ingress:/a\  chartPath: ${INGRESS_CHART_PATH}" "$VALUES_FILE"
+fi
+if [[ -n "${GPU_CHART_PATH:-}" ]]; then
+    sed -i "/^gpu:/a\  chartPath: ${GPU_CHART_PATH}" "$VALUES_FILE"
+fi
 
 # --- Deployment Target Selection ---
 echo "==============================================="
