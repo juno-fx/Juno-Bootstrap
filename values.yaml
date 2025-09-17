@@ -70,18 +70,21 @@ genesis:
       # of the above configured authentication services. (REQUIRED)
       email:
 
-# Ingress Overrides
-# https://github.com/kubernetes/ingress-nginx/blob/main/charts/ingress-nginx/values.yaml
-#ingress:
-#  url: "https://kubernetes.github.io/ingress-nginx"
-#  version: 4.12.1
-#  Map override values to the following config key
+# Envoy Gateway Overrides
+# https://github.com/envoyproxy/gateway/blob/main/charts/gateway-helm/values.tmpl.yaml
+#gateway:
+#  enabled: true
+#  chart: gateway-helm
+#  tlsSecretName: tls-orion
+#  chartPath:
+#  # Used when the url is git-based, eg.https://github.com/envoyproxy/gateway.git
+#  # chartPath: charts/gateway-helm-
+#  chartPath:
+#  url: "docker.io/envoyproxy"
+#  version: v1.5.0
 #  config:
-#    # Uncomment this to pull from a local registry.
-#    global:
-#      image:
-#        registry:
-
+#    controller:
+#      kind: DaemonSet
 # GPU Operator Overrides
 # https://github.com/NVIDIA/gpu-operator/blob/main/deployments/gpu-operator/values.yaml
 #gpu:

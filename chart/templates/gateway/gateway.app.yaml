@@ -1,8 +1,8 @@
-{{- if eq .Values.ingress.enabled true }}
+{{- if eq .Values.gateway.enabled true }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: nginx-ingress-controller
+  name: envoy-gateway
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "1"
@@ -12,19 +12,15 @@ spec:
   project: default
   destination:
     server: https://kubernetes.default.svc
-    namespace: ingress-nginx
+    namespace: envoy-gateway-system
   sources:
-    - repoURL: {{ .Values.ingress.url }}
-{{- if .Values.ingress.chartPath }}
-      path: {{ .Values.ingress.chartPath }}
-{{- else }}
-      chart: {{ .Values.ingress.chart }}
-{{- end }}
-      targetRevision: {{ .Values.ingress.version }}
+    - repoURL: "{{ .Values.gateway.url }}"
+      chart: "{{ .Values.gateway.chart }}"
+      targetRevision: {{ .Values.gateway.version }}
       helm:
         values: |-
-          {{- include "omitNulls" .Values.ingress.config | nindent 10 }}
-        releaseName: nginx-ingress-controller
+          {{- include "omitNulls" .Values.gateway.config | nindent 10 }}
+        releaseName: envoy-gateway
   syncPolicy:
     automated:
       prune: true
@@ -32,4 +28,5 @@ spec:
       allowEmpty: true
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true
 {{- end }}
