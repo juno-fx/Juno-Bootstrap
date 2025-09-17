@@ -16,16 +16,14 @@ from the root of the repository:
 helm install juno ./chart/ -f ./deployments/<sig>/<service>/<configuration>.yaml
 ```
 
-For example, to deploy Juno on-premise using the ingress preconfigured via hostPort and using the pre-install NVIDIA 
+For example, to deploy Juno on-premise using pre-installed NVIDIA 
 drivers, you would run the following command:
 
 ```bash
 helm install juno ./chart/ \
-  -f ./deployments/on-prem-sig/ingress/host-port.yaml \
   -f ./deployments/on-prem-sig/gpu/drivers-preinstalled.yaml \
   -f ./.values.yaml
 ```
-
 
 > [!IMPORTANT]  
 > Keep in mind that order matters here. We are adding our `.values.yaml` at the end of the command so we can override 

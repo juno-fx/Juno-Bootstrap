@@ -1,5 +1,5 @@
-# it is assumed the user has configured the ingress and gpu
-ingress:
+# it is assumed the user has configured an Envoy Gateway and Nvidia's gpu-operator
+gateway:
   enabled: false
 
 gpu:
