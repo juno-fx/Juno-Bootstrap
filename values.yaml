@@ -23,44 +23,44 @@ genesis:
   config:
     ### Container registry containing the Juno images  (REQUIRED)
     registry:
-    ### Image Pull Secret (Uncomment if using)
-    # image_pull_secret:
-    ### hostname of the server: my-genesis.example.com  (REQUIRED)
+      ### Image Pull Secret (Uncomment if using)
+      # image_pull_secret:
+      ### hostname of the server: my-genesis.example.com  (REQUIRED)
     host:
     ### defaults to https
     http_scheme: https
     ### Environment Variables
     env:
-    # You must have either Google or AWS Cognito configured.
-    # Uncomment one of the following (REQUIRED)
-    ### Google OAuth (Uncomment If using)
-    #  GOOGLE_CLIENT_ID:
-    #  GOOGLE_CLIENT_SECRET:
-    ### AWS Cognito (Uncomment If using)
-    #  COGNITO_CLIENT_ID:
-    #  COGNITO_CLIENT_SECRET:
-    #  COGNITO_ISSUER:
-    ### LDAP (Uncomment if using)
-    #  LDAP_URI:
-    #  LDAP_BIND_DN:
-    #  LDAP_BIND_PASSWORD:
-    #  LDAP_SEARCH_BASE:
-    #  LDAP_EMAIL_ATTRIBUTE:
-    #  LDAP_USERNAME_ATTRIBUTE:
-    #
-    ### Optional, used to suppoort LDAPS with self-signed certificates.
-    ### To make use of it, pass a Base64-encoded CA certificate that your host certs had been signed with.
-    # LDAPS_CA_CERT_BASE64:
-    ### Basic Auth (uncomment if using)
-    ### This is the option we provide for local development.
-    ### It is insecure and not recommended for production use.
-    #
-    ### The BASIC_AUTH_EMAIL should match titan.email here for one of the users
-    # BASIC_AUTH_EMAIL: "your-email@example.com"
-    # BASIC_AUTH_PASSWORD: "your-password"
-    # BASIC_AUTH_EMAIL_2: "another-email@example.com"
-    # BASIC_AUTH_PASSWORD_2: "another-password"
-    ### Owner Configuration
+      # You must have either Google or AWS Cognito configured.
+      # Uncomment one of the following (REQUIRED)
+      ### Google OAuth (Uncomment If using)
+      # GOOGLE_CLIENT_ID:
+      # GOOGLE_CLIENT_SECRET:
+      ### AWS Cognito (Uncomment If using)
+      # COGNITO_CLIENT_ID:
+      # COGNITO_CLIENT_SECRET:
+      # COGNITO_ISSUER:
+      ### LDAP (Uncomment if using)
+      # LDAP_URI:
+      # LDAP_BIND_DN:
+      # LDAP_BIND_PASSWORD:
+      # LDAP_SEARCH_BASE:
+      # LDAP_EMAIL_ATTRIBUTE:
+      # LDAP_USERNAME_ATTRIBUTE:
+      #
+      ### Optional, used to suppoort LDAPS with self-signed certificates.
+      ### To make use of it, pass a Base64-encoded CA certificate that your host certs had been signed with.
+      # LDAPS_CA_CERT_BASE64:
+      ### Basic Auth (uncomment if using)
+      ### This is the option we provide for local development.
+      ### It is insecure and not recommended for production use.
+      #
+      ### The BASIC_AUTH_EMAIL should match titan.email here for one of the users
+      # BASIC_AUTH_EMAIL: "your-email@example.com"
+      # BASIC_AUTH_PASSWORD: "your-password"
+      # BASIC_AUTH_EMAIL_2: "another-email@example.com"
+      # BASIC_AUTH_PASSWORD_2: "another-password"
+      ### Owner Configuration
     titan:
       # Username of the owner (REQUIRED)
       owner:
@@ -155,7 +155,6 @@ extraDeployments:
 #    targetRevision: main
 #    name: my-extra-deployment
 #    namespace: my-namespace
-
 
 # This only needs to be filled in for airgapped installs that bootstrap the cluster with our oneclick installer / helper script.
 # It relies on a local registry mirror, such as Harbor's proxycache projects.
