@@ -12,7 +12,7 @@ auth:
 #      password: "github_personal_access_token"
 genesis:
   repoURL: "https://github.com/juno-fx/Genesis-Deployment.git"
-  chartPath: .
+  chartPath: ./
   version: "v1.4.0"
   config:
     host:

@@ -95,7 +95,7 @@ if [[ "$IS_OFFLINE_INSTALL" =~ ^[Yy]$ ]]; then
     prompt GENESIS_REPO_URL "🔗 Enter Genesis chart URL [${GENESIS_REPO_URL}]: " "$GENESIS_REPO_URL"
     prompt GENESIS_IS_GIT "❓ Is this a git repo? [y/N]: " "N"
     if [[ "$GENESIS_IS_GIT" =~ ^[Yy]$ ]]; then
-        prompt GENESIS_CHART_PATH "📁 Enter the chart path within the repo: " ""
+        prompt GENESIS_CHART_PATH "📁 Enter the chart path within the repo: " "./"
     fi
     prompt GENESIS_VERSION "🏷️  Enter Genesis chart version [${GENESIS_VERSION}]: " "$GENESIS_VERSION"
 
