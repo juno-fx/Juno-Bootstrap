@@ -30,6 +30,10 @@ gateway:
   config:
     controller:
       kind: DaemonSet
+    config:
+      envoyGateway:
+        extensionApis:
+          enableBackend: true
 gpu:
   # helm repo to pull the gpu-poerator chart from
   url: "https://helm.ngc.nvidia.com/nvidia"
