@@ -18,6 +18,9 @@ genesis:
     host:
     http_scheme: https
 traefik:
+  global:
+    # telemetry - it is enabled by default
+    sendAnonymousUsage: false
   enabled: true
   chart: traefik
   # Used when the repoURL is git-based, eg.
