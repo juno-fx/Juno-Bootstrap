@@ -68,11 +68,11 @@ genesis:
       # of the above configured authentication services. (REQUIRED)
       email: REPLACE-EMAIL
 
-# Ingress Overrides
-# https://github.com/kubernetes/ingress-nginx/blob/main/charts/ingress-nginx/values.yaml
-ingress:
-  url: "REPLACE-INGRESS-URL"
-  version: REPLACE-INGRESS-VERSION
+# Traefik Overrides
+# https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yaml
+traefik:
+  url: "REPLACE-TRAEFIK-URL"
+  version: REPLACE-TRAEFIK-VERSION
 
 # GPU Operator Overrides
 # https://github.com/NVIDIA/gpu-operator/blob/main/deployments/gpu-operator/values.yaml

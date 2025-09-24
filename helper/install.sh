@@ -18,13 +18,10 @@ echo
 TEMPLATE_FILE="$(mktemp)"
 cp "$SCRIPT_DIR/values.yaml" "$TEMPLATE_FILE"
 
-# Genesis, ingress-nginx, and GPU Operator repoURL/version (defaults from values.yaml/comments) — only prompt if airgapped
-# ToDo: add support for both OCI and chart repos!!!
-# ToDo: add auth support for git repos
 GENESIS_REPO_URL="${GENESIS_REPO_URL:-https://github.com/juno-fx/Genesis-Deployment.git}"
 GENESIS_VERSION="${GENESIS_VERSION:-v1.4.0}"
-INGRESS_REPO_URL="${INGRESS_REPO_URL:-https://kubernetes.github.io/ingress-nginx}"
-INGRESS_VERSION="${INGRESS_VERSION:-4.12.1}"
+TRAEFIK_REPO_URL="${TRAEFIK_REPO_URL:-https://traefik.github.io/charts}"
+TRAEFIK_VERSION="${TRAEFIK_VERSION:-37.1.1}"
 GPU_REPO_URL="${GPU_REPO_URL:-https://helm.ngc.nvidia.com/nvidia}"
 GPU_VERSION="${GPU_VERSION:-v24.9.0}"
 
@@ -99,12 +96,12 @@ if [[ "$IS_OFFLINE_INSTALL" =~ ^[Yy]$ ]]; then
     fi
     prompt GENESIS_VERSION "🏷️  Enter Genesis chart version [${GENESIS_VERSION}]: " "$GENESIS_VERSION"
 
-    prompt INGRESS_REPO_URL "🌐 Enter ingress-nginx chart URL [${INGRESS_REPO_URL}]: " "$INGRESS_REPO_URL"
-    prompt INGRESS_IS_GIT "❓ Is this a git repo? [y/N]: " "N"
-    if [[ "$INGRESS_IS_GIT" =~ ^[Yy]$ ]]; then
-        prompt INGRESS_CHART_PATH "📁 Enter the chart path within the repo: " ""
+    prompt TRAEFIK_REPO_URL "🌐 Enter ingress-nginx chart URL [${TRAEFIK_REPO_URL}]: " "$TRAEFIK_REPO_URL"
+    prompt TRAEFIK_IS_GIT "❓ Is this a git repo? [y/N]: " "N"
+    if [[ "$TRAEFIK_IS_GIT" =~ ^[Yy]$ ]]; then
+        prompt TRAEFIK_CHART_PATH "📁 Enter the chart path within the repo: " ""
     fi
-    prompt INGRESS_VERSION "🏷️  Enter ingress-nginx chart version [${INGRESS_VERSION}]: " "$INGRESS_VERSION"
+    prompt TRAEFIK_VERSION "🏷️  Enter ingress-nginx chart version [${TRAEFIK_VERSION}]: " "$TRAEFIK_VERSION"
 
     prompt GPU_REPO_URL "🖥️  Enter GPU Operator chart URL [${GPU_REPO_URL}]: " "$GPU_REPO_URL"
     prompt GPU_IS_GIT "❓ Is this a git repo? [y/N]: " "N"
@@ -126,8 +123,8 @@ sed \
     -e "s|REPLACE-UID|$USER_UID|g" \
     -e "s|REPLACE-GENESIS-URL|$GENESIS_REPO_URL|g" \
     -e "s|REPLACE-GENESIS-VERSION|$GENESIS_VERSION|g" \
-    -e "s|REPLACE-INGRESS-URL|$INGRESS_REPO_URL|g" \
-    -e "s|REPLACE-INGRESS-VERSION|$INGRESS_VERSION|g" \
+    -e "s|REPLACE-TRAEFIK-URL|$TRAEFIK_REPO_URL|g" \
+    -e "s|REPLACE-TRAEFIK-VERSION|$TRAEFIK_VERSION|g" \
     -e "s|REPLACE-GPU-URL|$GPU_REPO_URL|g" \
     -e "s|REPLACE-GPU-VERSION|$GPU_VERSION|g" \
     "$TEMPLATE_FILE" > "$VALUES_FILE"
@@ -137,8 +134,8 @@ sed \
 echo "✅ $VALUES_FILE has been created with your configuration."
 echo
 
-if [[ -n "${INGRESS_CHART_PATH:-}" ]]; then
-    sed -i "/^ingress:/a\  chartPath: ${INGRESS_CHART_PATH}" "$VALUES_FILE"
+if [[ -n "${TRAEFIK_CHART_PATH:-}" ]]; then
+    sed -i "/^traefik:/a\  chartPath: ${TRAEFIK_CHART_PATH}" "$VALUES_FILE"
 fi
 if [[ -n "${GPU_CHART_PATH:-}" ]]; then
     sed -i "/^gpu:/a\  chartPath: ${GPU_CHART_PATH}" "$VALUES_FILE"
@@ -184,9 +181,9 @@ echo "➡️  Next step: running deployment script from repo..."
 
 export IS_OFFLINE_INSTALL
 
-"${SCRIPT_DIR}/../deployments/$TARGET_SCRIPT"
+#"${SCRIPT_DIR}/../deployments/$TARGET_SCRIPT"
 
 echo
 echo "🧹 Cleaning up generated values..."
-sudo rm -f "$TEMPLATE_FILE"
+#sudo rm -f "$TEMPLATE_FILE"
 echo "✅ Cleanup complete!"
