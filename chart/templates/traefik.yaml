@@ -13,7 +13,7 @@ spec:
     server: https://kubernetes.default.svc
     namespace: traefik
   sources:
-    - repoURL: "{{ .Values.traefik.url }}"
+    - repoURL: "{{ .Values.traefik.repoURL }}"
 {{- if .Values.traefik.chartPath }}
       path: {{ .Values.traefik.chartPath }}
 {{- else }}
