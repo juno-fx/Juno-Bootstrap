@@ -38,6 +38,12 @@ gpu:
   enabled: true
   version: v24.9.0
   config:
+    # this is early-access, however it avoids a major pitfall
+    # Without it, it's impossible to upgrade the underlying OS without downtime on ALL gpu nodes/workstations!
+    # https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/gpu-driver-configuration.html
+    driver:
+      nvidiaDriverCRD:
+        enabled: true
     nfd:
       enabled: true
     devicePlugin:
