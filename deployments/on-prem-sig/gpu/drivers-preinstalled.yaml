@@ -4,4 +4,4 @@ gpu:
     driver:
       enabled: false
     toolkit:
-      enabled: false
+      enabled: true
