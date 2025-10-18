@@ -160,6 +160,7 @@ extraDeployments:
 # It relies on a local registry mirror, such as Harbor's proxycache projects.
 # It removes the need to adjust all images and their respective imagePullSecrets
 # It follows syntax of: https://docs.k3s.io/installation/private-registry
+# When possible, it's recommended to use registry rewrites itself in containerd, also documented in the above URL
 #_oneclick_registries:
 #  mirrors:
 #    docker.io:
