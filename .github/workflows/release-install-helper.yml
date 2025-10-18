@@ -32,7 +32,7 @@ jobs:
         id: release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: "rolling_${{ steps.commit_shas.outputs.JUNO_K3S_SHORT_SHA }}"
+          tag_name: "rolling_${{ steps.commit_shas.outputs.REPO_SHORT_SHA }}"
           name: "Orion Install Helper - ${{ steps.commit_shas.outputs.REPO_SHORT_SHA }}"
           files: orion-install-helper
           body: |
