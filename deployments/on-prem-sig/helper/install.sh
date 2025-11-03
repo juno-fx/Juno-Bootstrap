@@ -132,5 +132,5 @@ fi
 
 
 
-rm -rf juno-oneclickfs
+sudo rm -rf juno-oneclickfs
 echo "✅ Cleanup complete!"
