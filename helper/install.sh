@@ -26,7 +26,7 @@ GENESIS_VERSION="${GENESIS_VERSION:-v1.7.1}"
 INGRESS_REPO_URL="${INGRESS_REPO_URL:-https://kubernetes.github.io/ingress-nginx}"
 INGRESS_VERSION="${INGRESS_VERSION:-4.12.1}"
 GPU_REPO_URL="${GPU_REPO_URL:-https://helm.ngc.nvidia.com/nvidia}"
-GPU_VERSION="${GPU_VERSION:-v24.9.0}"
+GPU_VERSION="${GPU_VERSION:-v25.10.1}"
 
 # Hostname (always ask, show system default as suggested value)
 SYSTEM_HOST="$(hostname -f)"

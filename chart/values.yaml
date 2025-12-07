@@ -36,7 +36,7 @@ gpu:
   # chartPath: deployments/gpu-operator
   chartPath:
   enabled: true
-  version: v24.9.0
+  version: v25.10.1
   config:
     # this is early-access, however it avoids a major pitfall
     # Without it, it's impossible to upgrade the underlying OS without downtime on ALL gpu nodes/workstations!
