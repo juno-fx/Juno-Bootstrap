@@ -22,7 +22,7 @@ cp "$SCRIPT_DIR/values.yaml" "$TEMPLATE_FILE"
 # ToDo: add support for both OCI and chart repos!!!
 # ToDo: add auth support for git repos
 GENESIS_REPO_URL="${GENESIS_REPO_URL:-https://github.com/juno-fx/Genesis-Deployment.git}"
-GENESIS_VERSION="${GENESIS_VERSION:-v1.7.1}"
+GENESIS_VERSION="${GENESIS_VERSION:-v1.7.2}"
 INGRESS_REPO_URL="${INGRESS_REPO_URL:-https://kubernetes.github.io/ingress-nginx}"
 INGRESS_VERSION="${INGRESS_VERSION:-4.12.1}"
 GPU_REPO_URL="${GPU_REPO_URL:-https://helm.ngc.nvidia.com/nvidia}"
