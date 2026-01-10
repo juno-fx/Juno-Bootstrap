@@ -19,7 +19,7 @@ genesis:
   ### Genesis Helm repo  (REQUIRED)
   url: "https://github.com/juno-fx/Genesis-Deployment.git"
   ### Genesis Helm repo branch to deploy  (REQUIRED)
-  version: "v2.0.0"
+  version: "v2.0.1"
   config:
     ### Container registry containing the Juno images  (REQUIRED)
     registry:
