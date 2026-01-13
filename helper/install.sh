@@ -31,8 +31,8 @@ GPU_VERSION="${GPU_VERSION:-v25.10.1}"
 # Hostname (always ask, show system default as suggested value)
 SYSTEM_HOST="$(hostname -f)"
 SYSTEM_HOST="${SYSTEM_HOST:-orion.example.local}"
-prompt INPUT_HOST "🌐 Enter the server's public DNS hostname [$SYSTEM_HOST]: " "$SYSTEM_HOST"
-HOSTNAME="$INPUT_HOST"
+prompt ORION_HOST "🌐 Enter the server's public DNS hostname [$SYSTEM_HOST]: " "$SYSTEM_HOST"
+HOSTNAME="$ORION_HOST"
 
 # Validate that it's not an IP address
 if [[ "$HOSTNAME" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -40,7 +40,6 @@ if [[ "$HOSTNAME" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     exit 1
 fi
 
-# Owner email (env override: OWNER_EMAIL)
 prompt OWNER_EMAIL "📧 Enter the owner email: " "${OWNER_EMAIL:-}"
 
 # Owner password (env override: OWNER_PASSWORD)

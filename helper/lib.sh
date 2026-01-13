@@ -6,6 +6,17 @@ prompt() {
     local prompt_text="$2"
     local default_value="${3:-}"
 
+    if [[ $ORION_HEADLESS_INSTALL == "true" ]]
+    	input="${input:-$default_value}"
+	if [[ -z $input ]]
+		echo "$var_name can't be empty in a headless install!"
+		exit 1
+	fi
+    	printf -v "$var_name" '%s' "$input"
+	exit 0
+
+    fi
+
     local input=""
     if [ -t 0 ]; then
         # stdin is a terminal, safe to read
