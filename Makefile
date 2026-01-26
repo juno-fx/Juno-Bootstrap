@@ -1,5 +1,8 @@
 .PHONY: package
 
+# vars
+PROJECT="genesis"
+
 package:
 	@rm -rf .orion-helper-scripts orion-install-helper
 	@mkdir -p .orion-helper-scripts
@@ -10,3 +13,28 @@ package:
 
 lint:
 	find -name "*.sh" -not -path "./.devbox/*" | xargs shellcheck -x
+
+
+# workflow
+cluster:
+	@kind create cluster --name $(PROJECT) --config .kind.yaml || echo "Cluster already exists..."
+
+argocd:
+	@kubectl create namespace argocd || echo "Argo namespace already exists..."
+	@kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+	@sleep 15
+	@kubectl wait --namespace argocd \
+		--for=condition=ready pod \
+		--selector=app.kubernetes.io/name=argocd-server \
+		--timeout=90s
+
+bootstrap: cluster argocd
+	@echo "Running Bootstrap..."
+	@helm upgrade -n argocd -i -f test.values.yaml $(PROJECT) ./chart/
+	@sleep 5
+	@kubectl get deployments -n argocd -o name | xargs -n1 kubectl rollout restart -n argocd
+	@sleep 5
+	@watch kubectl get applications -n argocd
+
+down:
+	@kind delete cluster --name $(PROJECT)
