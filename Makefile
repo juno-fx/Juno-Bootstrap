@@ -21,14 +21,25 @@ cluster:
 
 argocd:
 	@kubectl create namespace argocd || echo "Argo namespace already exists..."
-	@kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+	@kubectl create -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 	@sleep 15
 	@kubectl wait --namespace argocd \
 		--for=condition=ready pod \
 		--selector=app.kubernetes.io/name=argocd-server \
 		--timeout=90s
 
-bootstrap: cluster argocd
+ingress:
+	@kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+	@sleep 10
+	@kubectl wait --namespace ingress-nginx \
+		--for=condition=ready pod \
+		--selector=app.kubernetes.io/component=controller \
+		--timeout=90s || sleep 10 && kubectl wait --namespace ingress-nginx \
+										--for=condition=ready pod \
+										--selector=app.kubernetes.io/component=controller \
+										--timeout=90s
+
+bootstrap: cluster argocd ingress
 	@echo "Running Bootstrap..."
 	@helm upgrade -n argocd -i -f test.values.yaml $(PROJECT) ./chart/
 	@sleep 5
