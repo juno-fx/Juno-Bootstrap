@@ -13,7 +13,7 @@ auth:
 genesis:
   repoURL: "https://github.com/juno-fx/Genesis-Deployment.git"
   chartPath: ./
-  version: "v2.0.2"
+  version: "v2.0.3"
   config:
     host:
     http_scheme: https
