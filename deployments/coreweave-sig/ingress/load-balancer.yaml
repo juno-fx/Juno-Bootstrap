@@ -1,0 +1,14 @@
+# GPU is already provisioned in the cluster, so we block it here.
+gpu:
+  enabled: false
+
+# set up nginx ingress controller with a LoadBalancer service
+ingress:
+  enabled: true
+  config:
+    controller:
+      service:
+        type: LoadBalancer
+        annotations:
+          service.beta.kubernetes.io/external-hostname: *
+          service.beta.kubernetes.io/coreweave-load-balancer-type: public
