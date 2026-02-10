@@ -57,7 +57,7 @@ while true; do
 done
 
 # UID (env override: USER_UID)
-while true do
+while true; do
     prompt USER_UID "🆔 Enter the UID for that user: " "${USER_UID:-}"
     if [[ "$USER_UID" -gt 999 ]]; then
         break
