@@ -59,10 +59,10 @@ done
 # UID (env override: USER_UID)
 while true; do
     prompt USER_UID "🆔 Enter the UID for that user: " "${USER_UID:-}"
-    if [[ "$USER_UID" -gt 999 ]]; then
+    if [[ "$USER_UID" =~ ^[0-9]+$ ]] && [[ "$USER_UID" -gt 999 ]]; then
         break
     else
-        echo "❌ Invalid UID. Must be 1000 or higer"
+        echo "❌ Invalid UID. Must be 1000 or higher"
     fi
 done
 
