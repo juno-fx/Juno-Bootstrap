@@ -57,7 +57,14 @@ while true; do
 done
 
 # UID (env override: USER_UID)
-prompt USER_UID "🆔 Enter the UID for that user: " "${USER_UID:-}"
+while truel do
+    prompt USER_UID "🆔 Enter the UID for that user: " "${USER_UID:-}"
+    if [[ "$USER_UID" -gt 999 ]]; then
+        break
+    else
+        echo "❌ Invalid UID. Must be 1000 or higer"
+    fi
+done
 
 echo
 echo "==============================================="
