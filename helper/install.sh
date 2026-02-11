@@ -44,7 +44,16 @@ fi
 prompt OWNER_EMAIL "📧 Enter the owner email: " "${OWNER_EMAIL:-}"
 
 # Owner password (env override: OWNER_PASSWORD)
-prompt OWNER_PASSWORD "🔑 Enter the temporary password for the owner: " "${OWNER_PASSWORD:-}"
+while true; do 
+    prompt OWNER_PASSWORD "🔑 Enter the temporary password for the owner: " "${OWNER_PASSWORD:-}" true
+    prompt CONFIRM_PASSWORD "🔐 Confirm password for the owner: " "${CONFIRM_PASSWORD:-}" true
+    if [[ "$OWNER_PASSWORD" = "$CONFIRM_PASSWORD" ]]; then
+        break
+    else
+        echo "❌ Passwords do not match."
+    fi
+done
+
 
 # Username (env override: USERNAME)
 while true; do
