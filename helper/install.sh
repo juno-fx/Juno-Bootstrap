@@ -50,7 +50,7 @@ while true; do
     if [[ "$OWNER_PASSWORD" = "$CONFIRM_PASSWORD" ]]; then
         break
     else
-        echo "❌ Passwords to not match."
+        echo "❌ Passwords do not match."
     fi
 done
 
