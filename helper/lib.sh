@@ -72,7 +72,6 @@ check_host_resources(){
         return_code=1
     fi
     
-    # check_host_cpu
     if ! check_host_cpu; then
         return_code=1
     fi
