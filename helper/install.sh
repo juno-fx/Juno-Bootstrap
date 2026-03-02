@@ -28,6 +28,16 @@ INGRESS_VERSION="${INGRESS_VERSION:-4.12.1}"
 GPU_REPO_URL="${GPU_REPO_URL:-https://helm.ngc.nvidia.com/nvidia}"
 GPU_VERSION="${GPU_VERSION:-v25.10.1}"
 
+# Minimum resource limits
+MEMORY_LIMIT_GB=16
+CPU_LIMIT_CORE=4
+
+echo "❓ Checking available host resources..."
+check_host_resources
+echo "✅ Host meets minimum resource requirements!"
+
+
+
 # Hostname (always ask, show system default as suggested value)
 SYSTEM_HOST="$(hostname -f)"
 SYSTEM_HOST="${SYSTEM_HOST:-orion.example.local}"

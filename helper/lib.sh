@@ -34,3 +34,47 @@ prompt() {
     # Assign to the variable name
     printf -v "$var_name" '%s' "$input"
 }
+
+check_host_memory(){
+    installed_memory=""
+    while read -r label value _; do
+    if [[ "$label" == "MemTotal:" ]]; then
+        installed_memory=$(( value / 1048576 )) # Get it in GB for ease
+        break
+    fi
+    done < /proc/meminfo
+
+    if [[ "$installed_memory" -lt $MEMORY_LIMIT_GB ]]; then
+        echo "Installed memory is less than minimum requirements, exiting: $installed_memory GB < $MEMORY_LIMIT_GB GB"
+        return 1;
+    fi
+    return 0;
+}
+
+check_host_cpu(){
+    count=0
+    while read -r line; do
+        # Matching "processor" at the start of the line
+        if [[ "$line" =~ ^processor ]]; then
+            count=$((count + 1))
+        fi
+    done < /proc/cpuinfo
+    if [[ $count -lt "$CPU_LIMIT_CORE" ]]; then
+        echo "Available CPU is less than minimum requirements, exiting: $count cores < $CPU_LIMIT_CORE cores"
+        return 1;
+    fi
+    return 0;
+}
+
+check_host_resources(){
+    local return_code=0
+    if ! check_host_memory; then
+        return_code=1
+    fi
+    
+    # check_host_cpu
+    if ! check_host_cpu; then
+        return_code=1
+    fi
+    return "$return_code"
+}
