@@ -33,7 +33,6 @@ MEMORY_LIMIT_GB=16
 CPU_LIMIT_CORE=4
 echo "❓ Checking available host resources..."
 check_host_resources
-echo "🏆 All resource requirements met!"
 
 # Hostname (always ask, show system default as suggested value)
 SYSTEM_HOST="$(hostname -f)"

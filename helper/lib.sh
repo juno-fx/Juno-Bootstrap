@@ -89,6 +89,7 @@ check_host_resources(){
                 exit 1
                 ;;
         esac
-
+    else
+        echo "🏆 All resource requirements met!"
     fi
 }
