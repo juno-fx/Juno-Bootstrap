@@ -18,15 +18,13 @@ echo
 TEMPLATE_FILE="$(mktemp)"
 cp "$SCRIPT_DIR/values.yaml" "$TEMPLATE_FILE"
 
-# Genesis, ingress-nginx, and GPU Operator repoURL/version (defaults from values.yaml/comments) — only prompt if airgapped
+# Genesis and ingress-nginx only prompt if airgapped
 # ToDo: add support for both OCI and chart repos!!!
 # ToDo: add auth support for git repos
 GENESIS_REPO_URL="${GENESIS_REPO_URL:-https://github.com/juno-fx/Genesis-Deployment.git}"
 GENESIS_VERSION="${GENESIS_VERSION:-v2.0.3}"
 INGRESS_REPO_URL="${INGRESS_REPO_URL:-https://kubernetes.github.io/ingress-nginx}"
 INGRESS_VERSION="${INGRESS_VERSION:-4.12.1}"
-GPU_REPO_URL="${GPU_REPO_URL:-https://helm.ngc.nvidia.com/nvidia}"
-GPU_VERSION="${GPU_VERSION:-v25.10.1}"
 
 # Minimum resource limits
 MEMORY_LIMIT_GB=16
@@ -127,13 +125,6 @@ if [[ "$IS_OFFLINE_INSTALL" =~ ^[Yy]$ ]]; then
         prompt INGRESS_CHART_PATH "📁 Enter the chart path within the repo: " ""
     fi
     prompt INGRESS_VERSION "🏷️  Enter ingress-nginx chart version [${INGRESS_VERSION}]: " "$INGRESS_VERSION"
-
-    prompt GPU_REPO_URL "🖥️  Enter GPU Operator chart URL [${GPU_REPO_URL}]: " "$GPU_REPO_URL"
-    prompt GPU_IS_GIT "❓ Is this a git repo? [y/N]: " "N"
-    if [[ "$GPU_IS_GIT" =~ ^[Yy]$ ]]; then
-        prompt GPU_CHART_PATH "📁 Enter the chart path within the repo: " ""
-    fi
-    prompt GPU_VERSION "🏷️  Enter GPU Operator chart version [${GPU_VERSION}]: " "$GPU_VERSION"
 fi
 
 
@@ -150,8 +141,6 @@ sed \
     -e "s|REPLACE-GENESIS-VERSION|$GENESIS_VERSION|g" \
     -e "s|REPLACE-INGRESS-URL|$INGRESS_REPO_URL|g" \
     -e "s|REPLACE-INGRESS-VERSION|$INGRESS_VERSION|g" \
-    -e "s|REPLACE-GPU-URL|$GPU_REPO_URL|g" \
-    -e "s|REPLACE-GPU-VERSION|$GPU_VERSION|g" \
     "$TEMPLATE_FILE" > "$VALUES_FILE"
 
 
@@ -161,9 +150,6 @@ echo
 
 if [[ -n "${INGRESS_CHART_PATH:-}" ]]; then
     sed -i "/^ingress:/a\  chartPath: ${INGRESS_CHART_PATH}" "$VALUES_FILE"
-fi
-if [[ -n "${GPU_CHART_PATH:-}" ]]; then
-    sed -i "/^gpu:/a\  chartPath: ${GPU_CHART_PATH}" "$VALUES_FILE"
 fi
 
 # --- Deployment Target Selection ---

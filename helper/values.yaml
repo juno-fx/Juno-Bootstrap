@@ -73,9 +73,3 @@ genesis:
 ingress:
   url: "REPLACE-INGRESS-URL"
   version: REPLACE-INGRESS-VERSION
-
-# GPU Operator Overrides
-# https://github.com/NVIDIA/gpu-operator/blob/main/deployments/gpu-operator/values.yaml
-gpu:
-  url: "REPLACE-GPU-URL"
-  version: REPLACE-GPU-VERSION
