@@ -87,62 +87,6 @@ ingress:
 #    global:
 #      image:
 #        registry:
-
-# GPU Operator Overrides
-# https://github.com/NVIDIA/gpu-operator/blob/main/deployments/gpu-operator/values.yaml
-gpu:
-  enabled: false
-#gpu:
-#  url: "https://helm.ngc.nvidia.com/nvidia"
-#  version: v25.10.1
-#  Map override values to the following config key
-#  config:
-#    # Uncomment this to pull from a local registry.
-#    validator:
-#      repository:
-#    operator:
-#        repository:
-#        initContainer:
-#          repository:
-#    driver:
-#      repository:
-#    manager:
-#      repository:
-#    toolkit:
-#      repository:
-#    devicePlugin:
-#      repository:
-#    dcgm:
-#      repository:
-#    dcgmExporter:
-#      repository:
-#    gfd:
-#      repository:
-#    migManager:
-#      repository:
-#    nodeStatusExporter:
-#      repository:
-#    gds:
-#      repository:
-#    gdrcopy:
-#      repository:
-#    vgpuManager:
-#      repository:
-#      driverManager:
-#        repository:
-#    vgpuDeviceManager:
-#      repository:
-#    vfioManager:
-#      repository:
-#    kataManager:
-#      repository:
-#    sandboxDevicePlugin:
-#      repository:
-#    ccManager:
-#      repository:
-#    node-feature-discovery:
-#      repository:
-
 ### Extra Deployments
 # This provides an easy way to hook in additional custom
 # ArgoCD compatible Helm Applications.

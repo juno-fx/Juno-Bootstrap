@@ -22,7 +22,6 @@ drivers, you would run the following command:
 ```bash
 helm install juno ./chart/ \
   -f ./deployments/on-prem-sig/ingress/host-port.yaml \
-  -f ./deployments/on-prem-sig/gpu/drivers-preinstalled.yaml \
   -f ./.values.yaml
 ```
 
