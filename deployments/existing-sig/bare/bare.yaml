@@ -1,6 +1,3 @@
-# it is assumed the user has configured the ingress and gpu
+# it is assumed the user has configured the ingress
 ingress:
-  enabled: false
-
-gpu:
   enabled: false
