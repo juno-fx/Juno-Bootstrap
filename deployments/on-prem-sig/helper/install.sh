@@ -116,7 +116,7 @@ fi
 # --- Extract and run the installer ---
 echo "🚀 Running the installer..."
 tar -xzf "$TAR_FILE" -C ./
-sudo ./juno-oneclickfs/juno-oneclick.install ./.values.yaml --extra-vars="k3s_image_folder=$K3S_IMAGE_FOLDER"
+sudo ./juno-oneclickfs/juno-oneclick.install ./.values.yaml "k3s_image_folder=$K3S_IMAGE_FOLDER"
 echo "✅ Installation complete!"
 echo
 
