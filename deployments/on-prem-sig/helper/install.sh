@@ -99,7 +99,7 @@ else
     download_latest_oneclick
 fi
 
-
+prompt K3S_IMAGE_FOLDER "📁 Enter the directory path for storing k3s images [/var/lib/rancher]:" /var/lib/rancher
 
 # --- Ask confirmation before running installer ---
 if [[ "${AUTO_CONFIRM:-}" =~ ^[Yy]$ ]]; then
@@ -116,7 +116,7 @@ fi
 # --- Extract and run the installer ---
 echo "🚀 Running the installer..."
 tar -xzf "$TAR_FILE" -C ./
-sudo ./juno-oneclickfs/juno-oneclick.install ./.values.yaml
+sudo ./juno-oneclickfs/juno-oneclick.install ./.values.yaml --extra-vars="k3s_image_folder=$K3S_IMAGE_FOLDER"
 echo "✅ Installation complete!"
 echo
 
