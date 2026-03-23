@@ -20,6 +20,12 @@
 ### Introduction
 
 Juno Bootstrap is a collection of Helm charts that deploys the required services to run Juno on Kubernetes. 
+The preferred method of deploying is via the one-click installer which walks you through the installation 
+process and allows you to select from predefined Juno deployment configurations.
+
+```shell
+
+```
 
 
 ### Prerequisites
