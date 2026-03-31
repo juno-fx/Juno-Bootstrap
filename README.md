@@ -48,7 +48,7 @@ configuration for your deployment.
     ```
 2. Install ArgoCD:
     ```bash
-    kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+    kubectl create -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
     ```
 3. Configure your deployment using the predefined [Juno Deployment Configurations](/deployments/README.md) (optional, but recommended).
 4. Install Juno:

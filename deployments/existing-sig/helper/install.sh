@@ -72,7 +72,7 @@ fi
 # --- Check if ArgoCD is installed ---
 if ! kubectl get deployment -n argocd argocd-server >/dev/null 2>&1; then
     echo "⚡ ArgoCD not detected in 'argocd' namespace. Installing ArgoCD..."
-    kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+    kubectl create -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
     echo "✅ ArgoCD installation triggered. Waiting for server deployment to be ready..."
     kubectl rollout status deployment/argocd-server -n argocd
 fi
