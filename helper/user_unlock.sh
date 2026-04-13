@@ -8,9 +8,9 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source "${SCRIPT_DIR}/lib.sh"
 
 echo
-echo "==============================================="
-echo "   🔑 Official Juno Innovations Account Unlock Tool"
-echo "==============================================="
+echo "======================================================"
+echo "   🔑 Official Juno Innovations Basic Account Tool"
+echo "======================================================"
 echo
 
 # Check we have kubectl access
