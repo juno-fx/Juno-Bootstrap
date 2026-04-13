@@ -13,29 +13,30 @@ echo "   🔑 Official Juno Innovations Account Unlock Tool"
 echo "==============================================="
 echo
 
-# Check if we have access to kubectl
-
-KUBE_ACCESS=$(/usr/local/bin/kubectl get pods -n argocd -l app=genesis -o name)
-if [[ "$KUBE_ACCESS" -gt 0 ]]; then
+# Check we have kubectl access
+if ! /usr/local/bin/kubectl get pods -n argocd -l app=genesis -o name &>/dev/null; then
     echo "❌ Failed to access cluster, exiting"
     exit 1
 fi
 
-CURRENT_ACCOUNTS=$(kubectl get pods -n argocd -l app=genesis -o name | xargs -I {} kubectl get {} -n argocd -o jsonpath='{.spec.containers[0].env}' | jq -r '.[] | select(.name | startswith("BASIC_AUTH")) | "\(.name): \(.value)"')
+# Check for currently configured accounts and display if found
+CURRENT_ACCOUNTS=$(/usr/local/bin/kubectl get pods -n argocd -l app=genesis -o name | xargs -I {} kubectl get {} -n argocd -o jsonpath='{.spec.containers[0].env}' | jq -r '.[] | select(.name | startswith("BASIC_AUTH")) | "\(.name): \(.value)"')
 if [[ $CURRENT_ACCOUNTS ]]; then
     echo "🔐 Found existing user accounts"
     echo "$CURRENT_ACCOUNTS"
     exit 0
 fi
 
+# We didn't find any configured accounts, start getting ready to set one
+
 prompt NAMESPACE "❓ Which namespace is Genesis deployed under? [argocd]: " "argocd"
 NEW_PASSWORD="CHANGE_ME"
 
 # Get current values preserving newlines
-CURRENT_VALUES=$(kubectl get application genesis -n "$NAMESPACE" \
+CURRENT_VALUES=$(/usr/local/bin/kubectl get application genesis -n "$NAMESPACE" \
   -o json | jq -r '.spec.sources[0].helm.values')
 
-# Extract titan.email
+# Extract titan.email as this is the original email we used
 NEW_EMAIL=$(echo "$CURRENT_VALUES" | grep -A1 "^titan:" | grep "email:" | awk '{print $2}')
 
 if [[ ! $NEW_EMAIL ]]; then
@@ -51,7 +52,7 @@ NEW_ENTRY=" BASIC_AUTH_EMAIL: ${NEW_EMAIL}"$'\n'" BASIC_AUTH_PASSWORD: ${NEW_PAS
 
 # Check if there is already an "env" section and handle it accordingly
 if echo "$CURRENT_VALUES" | grep -q "^env:"; then
- NEW_VALUES=$(echo "$CURRENT_VALUES" | awk -v email=" BASIC_AUTH_EMAIL_${NEW_INDEX}: ${NEW_EMAIL}" -v password=" BASIC_AUTH_PASSWORD_${NEW_INDEX}: ${NEW_PASSWORD}" '/^env:/{print; print email; print password; next}1')
+ NEW_VALUES=$(echo "$CURRENT_VALUES" | awk -v email=" BASIC_AUTH_EMAIL: ${NEW_EMAIL}" -v password=" BASIC_AUTH_PASSWORD: ${NEW_PASSWORD}" '/^env:/{print; print email; print password; next}1')
 else
   NEW_VALUES="env:"$'\n'"${NEW_ENTRY}"$'\n'"${CURRENT_VALUES}"
 fi
@@ -64,11 +65,11 @@ PATCH=$(jq -n --arg vals "$NEW_VALUES" '[
   }
 ]')
 
-kubectl patch application genesis -n "$NAMESPACE" \
+/usr/local/bin/kubectl patch application genesis -n "$NAMESPACE" \
   --type='json' \
   -p "$PATCH"
 
-echo "User account reset:"
+echo "✅ User account reset successfully:"
 echo "👤   Username: $NEW_EMAIL"
 echo "🔑   Password: $NEW_PASSWORD"
 
