@@ -28,3 +28,5 @@ ingress:
   config:
     controller:
       kind: DaemonSet
+      config:
+        upstream-keepalive-time: "1s"
