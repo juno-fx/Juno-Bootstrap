@@ -111,7 +111,7 @@ echo "✅ Using values files:"
 echo "   - Defaults: $BARE_VALUES"
 echo "   - Overrides: $USER_VALUES"
 
-if [[ ! "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
+if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
     AWS_VALUES="${JUNO_BOOTSTRAP_ROOT}/deployments/existing-sig/aws/aws.yaml"
     if [[ ! -f "$AWS_VALUES" ]]; then
         echo "❌ AWS values file not found at $AWS_VALUES"
