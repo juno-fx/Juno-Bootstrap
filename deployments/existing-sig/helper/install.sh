@@ -27,6 +27,12 @@ check_command kubectl "Please install kubectl: https://kubernetes.io/docs/tasks/
 check_command helm "Please install Helm: https://helm.sh/docs/intro/install/"
 check_command git "Please install Git: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git"
 
+# --- Verify EKS Market Place ---
+prompt AWS_MARKET_PLACE "🏪 Is the target deployment facilitated by AWS Marketplace? [y/N]: " "N"
+if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
+    check_command eksctl "Please install eksctl: https://docs.aws.amazon.com/eks/latest/eksctl/installation.html"
+fi
+
 # --- Verify cluster connectivity ---
 echo "🌐 Verifying connection to Kubernetes cluster..."
 if ! kubectl cluster-info >/dev/null 2>&1; then
@@ -99,9 +105,21 @@ if [[ ! -f "$USER_VALUES" ]]; then
     exit 1
 fi
 
+HELM_ARGS=("-f" "$BARE_VALUES" "-f" "$USER_VALUES")
+
 echo "✅ Using values files:"
 echo "   - Defaults: $BARE_VALUES"
 echo "   - Overrides: $USER_VALUES"
+
+if [[ ! "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
+    AWS_VALUES="${JUNO_BOOTSTRAP_ROOT}/deployments/existing-sig/aws/aws.yaml"
+    if [[ ! -f "$AWS_VALUES" ]]; then
+        echo "❌ AWS values file not found at $AWS_VALUES"
+        exit 1
+    fi
+    echo "   - AWS: $AWS_VALUES"
+    HELM_ARGS+=("-f" "$AWS_VALUES")
+fi
 
 # --- Perform Helm install ---
 echo
@@ -111,10 +129,10 @@ HELM_RELEASE="${HELM_RELEASE:-orion}"
 # Install or upgrade via Helm using both -f arguments
 if helm status "$HELM_RELEASE" -n argocd >/dev/null 2>&1; then
     echo "🔄 Helm release '$HELM_RELEASE' exists, upgrading..."
-    helm upgrade "$HELM_RELEASE" "$CHART_DIR" -f "$BARE_VALUES" -f "$USER_VALUES" -n argocd
+    helm upgrade "$HELM_RELEASE" "$CHART_DIR" "${HELM_ARGS[@]}" -n argocd
 else
     echo "📦 Installing Helm release '$HELM_RELEASE'..."
-    helm install "$HELM_RELEASE" "$CHART_DIR" -f "$BARE_VALUES" -f "$USER_VALUES" -n argocd
+    helm install "$HELM_RELEASE" "$CHART_DIR" "${HELM_ARGS[@]}" -n argocd
 fi
 
 echo "✅ Helm deployment completed successfully!"
