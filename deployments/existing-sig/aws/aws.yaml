@@ -1,3 +1,2 @@
-env:
-  - name: AWS_MARKET_PLACE
-    value: true
+aws_marketplace:
+  enabled: true
