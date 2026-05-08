@@ -1,0 +1,6 @@
+aws_marketplace:
+  enabled: true
+genesis:
+  url: "REPLACE_HELM/Genesis-Deployment.git"
+  config:
+    registry: REPLACE_REGISTRY

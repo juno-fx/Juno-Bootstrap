@@ -27,10 +27,30 @@ check_command kubectl "Please install kubectl: https://kubernetes.io/docs/tasks/
 check_command helm "Please install Helm: https://helm.sh/docs/intro/install/"
 check_command git "Please install Git: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git"
 
+AWS_REGION=""
 # --- Verify EKS Market Place ---
 prompt AWS_MARKET_PLACE "🏪 Is the target deployment facilitated by AWS Marketplace? [y/N]: " "N"
 if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
+    check_command aws "Please install aws: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html"
     check_command eksctl "Please install eksctl: https://docs.aws.amazon.com/eks/latest/eksctl/installation.html"
+
+    AWS_REGION="$(aws configure get region)"
+
+    prompt CONFIRM_REGION "❓ We have detect your AWS region as $AWS_REGION, is that correct? [Y/n]: " "y"
+    if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
+        echo "❌ Please change your region to your required target before continuing, exiting"
+        exit 1
+    fi
+
+    AWS_VALUES_FILE="./aws/aws.yaml"
+    echo "📝 Writing AWS values $AWS_VALUES_FILE..."
+    sed \
+        -e "s|REPLACE_HELM|911952416775.dkr.ecr.$AWS_REGION.amazonaws.com/cdk-hnb659fds-container-assets-911952416775-$AWS_REGION|g" \
+        -e "s|REPLACE_REGISTRY|911952416775.dkr.ecr.$AWS_REGION.amazonaws.com/cdk-hnb659fds-container-assets-911952416775-$AWS_REGION|g" \
+        "./aws/aws_template.yaml" > "$AWS_VALUES_FILE"
+
+    echo "✅ $AWS_VALUES_FILE has been updated with your configuration."
+    echo
 fi
 
 # --- Verify cluster connectivity ---
