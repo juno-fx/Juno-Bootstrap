@@ -5,6 +5,7 @@ set -euo pipefail
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 # shellcheck source=helper/lib.sh
 JUNO_BOOTSTRAP_ROOT="${SCRIPT_DIR}/../../../"
+AWS_JUNO_REPO=709825985650
 source "${JUNO_BOOTSTRAP_ROOT}/helper/lib.sh"
 
 echo
@@ -27,10 +28,30 @@ check_command kubectl "Please install kubectl: https://kubernetes.io/docs/tasks/
 check_command helm "Please install Helm: https://helm.sh/docs/intro/install/"
 check_command git "Please install Git: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git"
 
+AWS_REGION=""
 # --- Verify EKS Market Place ---
 prompt AWS_MARKET_PLACE "🏪 Is the target deployment facilitated by AWS Marketplace? [y/N]: " "N"
 if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
+    check_command aws "Please install aws: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html"
     check_command eksctl "Please install eksctl: https://docs.aws.amazon.com/eks/latest/eksctl/installation.html"
+
+    AWS_REGION="$(aws configure get region)"
+
+    prompt CONFIRM_REGION "❓ We have detect your AWS region as \"$AWS_REGION\", is that correct? [Y/n]: " "y"
+    if [[ ! "$CONFIRM_REGION" =~ ^[Yy]$ ]]; then
+        echo "❌ Please change your region to your required target before continuing, exiting"
+        exit 1
+    fi
+
+    AWS_VALUES_FILE="${JUNO_BOOTSTRAP_ROOT}deployments/existing-sig/aws/aws.yaml"
+    echo "📝 Writing AWS values $AWS_VALUES_FILE..."
+    sed \
+        -e "s|REPLACE_HELM|$AWS_JUNO_REPO.dkr.ecr.$AWS_REGION.amazonaws.com/juno-innovations|g" \
+        -e "s|REPLACE_REGISTRY|$AWS_JUNO_REPO.dkr.ecr.$AWS_REGION.amazonaws.com/juno-innovations|g" \
+        "${JUNO_BOOTSTRAP_ROOT}deployments/existing-sig/aws/aws_template.yaml" > "$AWS_VALUES_FILE"
+
+    echo "✅ $AWS_VALUES_FILE has been updated with your configuration."
+    echo
 fi
 
 # --- Verify cluster connectivity ---
