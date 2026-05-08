@@ -30,6 +30,8 @@ spec:
           {{- if .Values.aws_marketplace.enabled }}
           - name: "env.AWS_MARKET_PLACE"
             value: enabled
+          - name: "env.AWS_REGION"
+            value: {{- .Values.aws_region }}
           {{- end }}
   syncPolicy:
     automated:
