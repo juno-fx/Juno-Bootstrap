@@ -29,6 +29,7 @@ check_command helm "Please install Helm: https://helm.sh/docs/intro/install/"
 check_command git "Please install Git: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git"
 
 AWS_REGION=""
+echo "📋 Please aware if AWS market place is enabled, changes to your AWS account will be made to allow for licensing of Juno"
 # --- Verify EKS Market Place ---
 prompt AWS_MARKET_PLACE "🏪 Is the target deployment facilitated by AWS Marketplace? [y/N]: " "N"
 if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
@@ -48,6 +49,7 @@ if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
     sed \
         -e "s|REPLACE_HELM|$AWS_JUNO_REPO.dkr.ecr.$AWS_REGION.amazonaws.com/juno-innovations|g" \
         -e "s|REPLACE_REGISTRY|$AWS_JUNO_REPO.dkr.ecr.$AWS_REGION.amazonaws.com/juno-innovations|g" \
+        -e "s|REPLACE_REGION|$AWS_REGION|g" \
         "${JUNO_BOOTSTRAP_ROOT}deployments/existing-sig/aws/aws_template.yaml" > "$AWS_VALUES_FILE"
 
     echo "✅ $AWS_VALUES_FILE has been updated with your configuration."
@@ -88,6 +90,41 @@ if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
     echo "❌ Installation aborted by user."
     exit 1
 fi
+
+# --- Setup AWS cluster licensing ---
+if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
+    CLUSTERS=$(eksctl get cluster | awk 'NR>1 {print $1}' | paste -s -d, -)
+    echo "Detected EKS clusters: $CLUSTERS"
+    prompt CLUSTER "🖧 Please select which EKS cluster to setup: "
+    prompt LICENSE_ARN "🪪 Enter license arn: "
+
+    echo "- Setting up IAM policies for Juno licensing"
+    # TODO determine if ROLE_ARN is provided by this command:
+    eksctl create iamserviceaccount \
+        --name genesis \
+        --namespace genesis \
+        --cluster "$CLUSTER" \
+        --attach-policy-arn "arn:aws:iam::aws:policy/service-role/AWSLicenseManagerConsumptionPolicy" \
+        --approve \
+        --override-existing-serviceaccounts
+
+    echo "- Setting up license secret"
+    kubectl create namespace genesis --dry-run=client -o yaml | kubectl apply -f -
+
+    TOKEN=$(aws license-manager create-token \
+        --license-arn "$LICENSE_ARN" \
+        --role-arns "$ROLE_ARN" \
+        --client-token $(uuidgen) \
+        --query 'Token' \
+        --output text)
+
+    kubectl create secret generic aws-marketplace-license-config \
+        --namespace genesis \
+        --from-literal=license_token="$TOKEN" \
+        --from-literal=iam_role="$ROLE_ARN"
+
+fi
+
 
 # --- Ensure argocd namespace exists ---
 if ! kubectl get namespace argocd >/dev/null 2>&1; then
