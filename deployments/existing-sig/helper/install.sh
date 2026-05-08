@@ -5,6 +5,7 @@ set -euo pipefail
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 # shellcheck source=helper/lib.sh
 JUNO_BOOTSTRAP_ROOT="${SCRIPT_DIR}/../../../"
+AWS_JUNO_REPO=709825985650
 source "${JUNO_BOOTSTRAP_ROOT}/helper/lib.sh"
 
 echo
@@ -45,8 +46,8 @@ if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
     AWS_VALUES_FILE="${JUNO_BOOTSTRAP_ROOT}deployments/existing-sig/aws/aws.yaml"
     echo "📝 Writing AWS values $AWS_VALUES_FILE..."
     sed \
-        -e "s|REPLACE_HELM|911952416775.dkr.ecr.$AWS_REGION.amazonaws.com/cdk-hnb659fds-container-assets-911952416775-$AWS_REGION|g" \
-        -e "s|REPLACE_REGISTRY|911952416775.dkr.ecr.$AWS_REGION.amazonaws.com/cdk-hnb659fds-container-assets-911952416775-$AWS_REGION|g" \
+        -e "s|REPLACE_HELM|$AWS_JUNO_REPO.dkr.ecr.$AWS_REGION.amazonaws.com/juno-innovations|g" \
+        -e "s|REPLACE_REGISTRY|$AWS_JUNO_REPO.dkr.ecr.$AWS_REGION.amazonaws.com/juno-innovations|g" \
         "${JUNO_BOOTSTRAP_ROOT}deployments/existing-sig/aws/aws_template.yaml" > "$AWS_VALUES_FILE"
 
     echo "✅ $AWS_VALUES_FILE has been updated with your configuration."
