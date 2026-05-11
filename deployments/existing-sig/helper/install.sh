@@ -102,24 +102,23 @@ if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
     # TODO determine if ROLE_ARN is provided by this command:
     eksctl create iamserviceaccount \
         --name genesis \
-        --namespace genesis \
+        --namespace argocd \
         --cluster "$CLUSTER" \
         --attach-policy-arn "arn:aws:iam::aws:policy/service-role/AWSLicenseManagerConsumptionPolicy" \
-        --approve \
-        --override-existing-serviceaccounts
+        --approve
 
     echo "- Setting up license secret"
-    kubectl create namespace genesis --dry-run=client -o yaml | kubectl apply -f -
+    kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
 
     TOKEN=$(aws license-manager create-token \
         --license-arn "$LICENSE_ARN" \
         --role-arns "$ROLE_ARN" \
-        --client-token $(uuidgen) \
+        --client-token "$(uuidgen)" \
         --query 'Token' \
         --output text)
 
     kubectl create secret generic aws-marketplace-license-config \
-        --namespace genesis \
+        --namespace argocd \
         --from-literal=license_token="$TOKEN" \
         --from-literal=iam_role="$ROLE_ARN"
 
