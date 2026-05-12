@@ -36,6 +36,7 @@ if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
     check_command aws "Please install aws: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html"
     check_command eksctl "Please install eksctl: https://docs.aws.amazon.com/eks/latest/eksctl/installation.html"
 
+    # TODO CHECK IF THIS IS EMPTY
     AWS_REGION="$(aws configure get region)"
 
     prompt CONFIRM_REGION "❓ We have detect your AWS region as \"$AWS_REGION\", is that correct? [Y/n]: " "y"
@@ -91,45 +92,27 @@ if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
     exit 1
 fi
 
+# --- Ensure argocd namespace exists ---
+if ! kubectl get namespace argocd >/dev/null 2>&1; then
+    echo "⚡ 'argocd' namespace not found. Creating it..."
+    kubectl create namespace argocd
+    echo "✅ 'argocd' namespace created."
+fi
+
 # --- Setup AWS cluster licensing ---
 if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
     CLUSTERS=$(eksctl get cluster | awk 'NR>1 {print $1}' | paste -s -d, -)
-    echo "Detected EKS clusters: $CLUSTERS"
-    prompt CLUSTER "🖧 Please select which EKS cluster to setup: "
-    prompt LICENSE_ARN "🪪 Enter license arn: "
+    echo "📜 Setting up license IAM policy"
+    echo "- Detected EKS clusters: $CLUSTERS"
+    prompt CLUSTER "🖧 Please enter which EKS cluster to setup: "
 
     echo "- Setting up IAM policies for Juno licensing"
-    # TODO determine if ROLE_ARN is provided by this command:
     eksctl create iamserviceaccount \
         --name genesis \
         --namespace argocd \
         --cluster "$CLUSTER" \
         --attach-policy-arn "arn:aws:iam::aws:policy/service-role/AWSLicenseManagerConsumptionPolicy" \
         --approve
-
-    echo "- Setting up license secret"
-    kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
-
-    TOKEN=$(aws license-manager create-token \
-        --license-arn "$LICENSE_ARN" \
-        --role-arns "$ROLE_ARN" \
-        --client-token "$(uuidgen)" \
-        --query 'Token' \
-        --output text)
-
-    kubectl create secret generic aws-marketplace-license-config \
-        --namespace argocd \
-        --from-literal=license_token="$TOKEN" \
-        --from-literal=iam_role="$ROLE_ARN"
-
-fi
-
-
-# --- Ensure argocd namespace exists ---
-if ! kubectl get namespace argocd >/dev/null 2>&1; then
-    echo "⚡ 'argocd' namespace not found. Creating it..."
-    kubectl create namespace argocd
-    echo "✅ 'argocd' namespace created."
 fi
 
 # --- Check if ArgoCD is installed ---
@@ -139,8 +122,6 @@ if ! kubectl get deployment -n argocd argocd-server >/dev/null 2>&1; then
     echo "✅ ArgoCD installation triggered. Waiting for server deployment to be ready..."
     kubectl rollout status deployment/argocd-server -n argocd
 fi
-
-
 
 # --- Determine chart path inside cloned repo ---
 CHART_DIR="${JUNO_BOOTSTRAP_ROOT}/chart"
