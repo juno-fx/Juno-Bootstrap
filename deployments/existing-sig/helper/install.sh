@@ -109,7 +109,7 @@ if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
 
     echo "- Setting up IAM policies for Juno licensing"
     CONSUME_POLICY_ARN=$(aws iam create-policy \
-        --policy-name "$CONSUME_POLICY_NAME" \
+        --policy-name "genesis-license-consume-policy" \
         --policy-document '{
             "Version": "2012-10-17",
             "Statement": [
@@ -129,7 +129,7 @@ if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
         --query 'Policy.Arn' \
         --output text)
     LIST_POLICY_ARN=$(aws iam create-policy \
-        --policy-name "genesis-license-manager-policy" \
+        --policy-name "genesis-license-list-policy" \
         --policy-document '{
             "Version": "2012-10-17",
             "Statement": [
