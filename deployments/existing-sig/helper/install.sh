@@ -108,11 +108,29 @@ if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
     prompt CLUSTER "🖧 Please enter which EKS cluster to setup: "
 
     echo "- Setting up IAM policies for Juno licensing"
+    POLICY_ARN=$(aws iam create-policy \
+        --policy-name "genesis-license-manager-policy" \
+        --policy-document '{
+            "Version": "2012-10-17",
+            "Statement": [
+            {
+                "Sid": "VisualEditor0",
+                "Effect": "Allow",
+                "Action": [
+                "license-manager:ListReceivedLicenses"
+                ],
+                "Resource": "*"
+            }
+            ]
+        }' \
+        --query 'Policy.Arn' \
+        --output text)
+
     eksctl create iamserviceaccount \
         --name genesis \
         --namespace argocd \
         --cluster "$CLUSTER" \
-        --attach-policy-arn "arn:aws:iam::aws:policy/action/license-manager:ListReceivedLicenses" \
+        --attach-policy-arn "$POLICY_ARN" \
         --approve
 fi
 
