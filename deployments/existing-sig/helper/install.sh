@@ -104,6 +104,7 @@ if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
     CLUSTERS=$(eksctl get cluster | awk 'NR>1 {print $1}' | paste -s -d, -)
     echo "📜 Setting up license IAM policy"
     echo "- Detected EKS clusters: $CLUSTERS"
+    CLUSTER=""
     prompt CLUSTER "🖧 Please enter which EKS cluster to setup: "
 
     echo "- Setting up IAM policies for Juno licensing"
