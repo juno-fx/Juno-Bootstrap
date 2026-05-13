@@ -111,7 +111,7 @@ if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
         --name genesis \
         --namespace argocd \
         --cluster "$CLUSTER" \
-        --attach-policy-arn "arn:aws:iam::aws:policy/service-role/AWSLicenseManagerConsumptionPolicy" \
+        --attach-policy-arn "arn:aws:iam::aws:policy/AWSLicenseManagerConsumptionPolicy" \
         --approve
 fi
 
