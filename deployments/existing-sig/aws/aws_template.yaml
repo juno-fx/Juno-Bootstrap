@@ -1,5 +1,6 @@
 aws_marketplace:
   enabled: true
+aws_region: REPLACE_REGION
 genesis:
   url: "REPLACE_HELM/Genesis-Deployment.git"
   config:
