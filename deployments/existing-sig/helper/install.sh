@@ -29,7 +29,7 @@ check_command helm "Please install Helm: https://helm.sh/docs/intro/install/"
 check_command git "Please install Git: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git"
 
 AWS_REGION=""
-echo "📋 Please aware if AWS market place is enabled, changes to your AWS account will be made to allow for licensing of Juno"
+echo "📋 Please be aware if AWS market place is enabled, changes to your AWS account will be made to allow for licensing of Juno"
 # --- Verify EKS Market Place ---
 prompt AWS_MARKET_PLACE "🏪 Is the target deployment facilitated by AWS Marketplace? [y/N]: " "N"
 if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
