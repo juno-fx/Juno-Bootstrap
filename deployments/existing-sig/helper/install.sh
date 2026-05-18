@@ -130,17 +130,18 @@ if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
             --policy-document '{
                 "Version": "2012-10-17",
                 "Statement": [
-                {
-                    "Sid": "VisualEditor0",
-                    "Effect": "Allow",
-                    "Action": [
-                    "license-manager:CheckoutLicense",
-                    "license-manager:CheckInLicense",
-                    "license-manager:ExtendLicenseConsumption",
-                    "license-manager:GetLicense"
-                    ],
-                    "Resource": "*"
-                }
+                    {
+                        "Sid": "VisualEditor0",
+                        "Effect": "Allow",
+                        "Action": [
+                            "license-manager:CheckoutLicense",
+                            "license-manager:CheckInLicense",
+                            "license-manager:ExtendLicenseConsumption",
+                            "license-manager:GetLicense",
+                            "license-manager:GetLicenseUsage"
+                        ],
+                        "Resource": "*"
+                    }
                 ]
             }' \
             --query 'Policy.Arn' \
