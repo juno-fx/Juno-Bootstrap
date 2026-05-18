@@ -5,6 +5,7 @@ set -euo pipefail
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 # shellcheck source=helper/lib.sh
 JUNO_BOOTSTRAP_ROOT="${SCRIPT_DIR}/../../../"
+AWS_JUNO_REPO=709825985650
 source "${JUNO_BOOTSTRAP_ROOT}/helper/lib.sh"
 
 echo
@@ -26,6 +27,38 @@ check_command() {
 check_command kubectl "Please install kubectl: https://kubernetes.io/docs/tasks/tools/"
 check_command helm "Please install Helm: https://helm.sh/docs/intro/install/"
 check_command git "Please install Git: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git"
+
+AWS_REGION=""
+echo "📋 Please be aware if AWS market place is enabled, changes to your AWS account will be made to allow for licensing of Juno"
+# --- Verify EKS Market Place ---
+prompt AWS_MARKET_PLACE "🏪 Is the target deployment facilitated by AWS Marketplace? [y/N]: " "N"
+if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
+    check_command aws "Please install aws: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html"
+    check_command eksctl "Please install eksctl: https://docs.aws.amazon.com/eks/latest/eksctl/installation.html"
+
+    AWS_REGION="$(aws configure get region)"
+    if [ -z "${AWS_REGION}" ];then
+        prompt AWS_REGION "❓ Could not auto detect AWS Region, please enter your region now: " 
+    else
+        prompt CONFIRM_REGION "❓ We have detect your AWS region as \"$AWS_REGION\", is that correct? [Y/n]: " "y"
+        if [[ ! "$CONFIRM_REGION" =~ ^[Yy]$ ]]; then
+            echo "❌ Please change your region to your required target before continuing, exiting"
+            exit 1
+        fi
+    fi
+
+
+    AWS_VALUES_FILE="${JUNO_BOOTSTRAP_ROOT}deployments/existing-sig/aws/aws.yaml"
+    echo "📝 Writing AWS values $AWS_VALUES_FILE..."
+    sed \
+        -e "s|REPLACE_HELM|$AWS_JUNO_REPO.dkr.ecr.$AWS_REGION.amazonaws.com/juno-innovations|g" \
+        -e "s|REPLACE_REGISTRY|$AWS_JUNO_REPO.dkr.ecr.$AWS_REGION.amazonaws.com/juno-innovations|g" \
+        -e "s|REPLACE_REGION|$AWS_REGION|g" \
+        "${JUNO_BOOTSTRAP_ROOT}deployments/existing-sig/aws/aws_template.yaml" > "$AWS_VALUES_FILE"
+
+    echo "✅ $AWS_VALUES_FILE has been updated with your configuration."
+    echo
+fi
 
 # --- Verify cluster connectivity ---
 echo "🌐 Verifying connection to Kubernetes cluster..."
@@ -69,6 +102,90 @@ if ! kubectl get namespace argocd >/dev/null 2>&1; then
     echo "✅ 'argocd' namespace created."
 fi
 
+# --- Setup AWS cluster licensing ---
+if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
+    CLUSTERS=$(eksctl get cluster | awk 'NR>1 {print $1}' | paste -s -d, -)
+    CURRENT_CONTEXT=$(kubectl config view --minify --output jsonpath='{.clusters[0].name}' | awk -F'/' '{print $NF}')
+    echo "📜 Setting up license IAM policy"
+    echo "- Detected EKS clusters: $CLUSTERS"
+    CLUSTER=""
+
+    if [[ "$CLUSTERS" == *"$CURRENT_CONTEXT"* ]]; then
+       prompt CLUSTER "🖧 Please enter which EKS cluster to setup [$CURRENT_CONTEXT]: " "$CURRENT_CONTEXT"
+    else
+       prompt CLUSTER "🖧 Please enter which EKS cluster to setup: "
+    fi
+
+    ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
+    CONSUME_POLICY_NAME=genesis-license-consume-policy
+    CONSUME_POLICY_ARN="arn:aws:iam::${ACCOUNT_ID}:policy/${CONSUME_POLICY_NAME}"
+
+    if aws iam get-policy --policy-arn "$CONSUME_POLICY_ARN" > /dev/null 2>&1; then
+        echo "Consume policy already exists, skipping creation: $CONSUME_POLICY_ARN"
+    # Your script logic for when it exists goes here
+    else
+    echo "- Setting up IAM policies for Juno licensing"
+        CONSUME_POLICY_ARN=$(aws iam create-policy \
+            --policy-name "$CONSUME_POLICY_NAME" \
+            --policy-document '{
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Sid": "VisualEditor0",
+                        "Effect": "Allow",
+                        "Action": [
+                            "license-manager:CheckoutLicense",
+                            "license-manager:CheckInLicense",
+                            "license-manager:ExtendLicenseConsumption",
+                            "license-manager:GetLicense",
+                            "license-manager:GetLicenseUsage"
+                        ],
+                        "Resource": "*"
+                    }
+                ]
+            }' \
+            --query 'Policy.Arn' \
+            --output text)
+    fi
+
+    LIST_POLICY_NAME=genesis-license-list-policy
+    LIST_POLICY_ARN="arn:aws:iam::${ACCOUNT_ID}:policy/${LIST_POLICY_NAME}"
+    if aws iam get-policy --policy-arn "$LIST_POLICY_ARN" > /dev/null 2>&1; then
+        echo "List policy already exists, skipping creation: $LIST_POLICY_ARN"
+    else
+        LIST_POLICY_ARN=$(aws iam create-policy \
+            --policy-name "$LIST_POLICY_NAME" \
+            --policy-document '{
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Sid": "VisualEditor0",
+                        "Effect": "Allow",
+                        "Action": [
+                        "license-manager:ListReceivedLicenses"
+                        ],
+                        "Resource": "*"
+                    }
+                ]
+            }' \
+            --query 'Policy.Arn' \
+            --output text)
+    fi
+
+    if eksctl get iamserviceaccount --cluster "$CLUSTER" --namespace argocd | grep -w "genesis" > /dev/null 2>&1; then
+        echo "Service IAM account 'genesis' already exists in namespace 'argocd'. Skipping..."
+    else
+        echo "Creating Service IAM account 'genesis'..."
+        eksctl create iamserviceaccount \
+            --name genesis \
+            --namespace argocd \
+            --cluster "$CLUSTER" \
+            --attach-policy-arn "$LIST_POLICY_ARN" \
+            --attach-policy-arn "$CONSUME_POLICY_ARN" \
+            --approve
+    fi
+fi
+
 # --- Check if ArgoCD is installed ---
 if ! kubectl get deployment -n argocd argocd-server >/dev/null 2>&1; then
     echo "⚡ ArgoCD not detected in 'argocd' namespace. Installing ArgoCD..."
@@ -76,8 +193,6 @@ if ! kubectl get deployment -n argocd argocd-server >/dev/null 2>&1; then
     echo "✅ ArgoCD installation triggered. Waiting for server deployment to be ready..."
     kubectl rollout status deployment/argocd-server -n argocd
 fi
-
-
 
 # --- Determine chart path inside cloned repo ---
 CHART_DIR="${JUNO_BOOTSTRAP_ROOT}/chart"
@@ -99,9 +214,21 @@ if [[ ! -f "$USER_VALUES" ]]; then
     exit 1
 fi
 
+HELM_ARGS=("-f" "$BARE_VALUES" "-f" "$USER_VALUES")
+
 echo "✅ Using values files:"
 echo "   - Defaults: $BARE_VALUES"
 echo "   - Overrides: $USER_VALUES"
+
+if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
+    AWS_VALUES="${JUNO_BOOTSTRAP_ROOT}/deployments/existing-sig/aws/aws.yaml"
+    if [[ ! -f "$AWS_VALUES" ]]; then
+        echo "❌ AWS values file not found at $AWS_VALUES"
+        exit 1
+    fi
+    echo "   - AWS: $AWS_VALUES"
+    HELM_ARGS+=("-f" "$AWS_VALUES")
+fi
 
 # --- Perform Helm install ---
 echo
@@ -111,10 +238,10 @@ HELM_RELEASE="${HELM_RELEASE:-orion}"
 # Install or upgrade via Helm using both -f arguments
 if helm status "$HELM_RELEASE" -n argocd >/dev/null 2>&1; then
     echo "🔄 Helm release '$HELM_RELEASE' exists, upgrading..."
-    helm upgrade "$HELM_RELEASE" "$CHART_DIR" -f "$BARE_VALUES" -f "$USER_VALUES" -n argocd
+    helm upgrade "$HELM_RELEASE" "$CHART_DIR" "${HELM_ARGS[@]}" -n argocd
 else
     echo "📦 Installing Helm release '$HELM_RELEASE'..."
-    helm install "$HELM_RELEASE" "$CHART_DIR" -f "$BARE_VALUES" -f "$USER_VALUES" -n argocd
+    helm install "$HELM_RELEASE" "$CHART_DIR" "${HELM_ARGS[@]}" -n argocd
 fi
 
 echo "✅ Helm deployment completed successfully!"

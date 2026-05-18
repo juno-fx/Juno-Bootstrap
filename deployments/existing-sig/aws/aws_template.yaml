@@ -1,0 +1,10 @@
+aws_marketplace:
+  enabled: true
+aws_region: REPLACE_REGION
+genesis:
+  url: "oci://REPLACE_HELM"
+  chartPath: null
+  version: 3.0.2
+  chart: orion-genesis-ecr
+  config:
+    registry: REPLACE_REGISTRY
