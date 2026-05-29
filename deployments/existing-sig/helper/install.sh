@@ -51,7 +51,6 @@ if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
     AWS_VALUES_FILE="${JUNO_BOOTSTRAP_ROOT}deployments/existing-sig/aws/aws.yaml"
     echo "📝 Writing AWS values $AWS_VALUES_FILE..."
     sed \
-        -e "s|REPLACE_HELM|$AWS_JUNO_REPO.dkr.ecr.$AWS_REGION.amazonaws.com/juno-innovations|g" \
         -e "s|REPLACE_REGISTRY|$AWS_JUNO_REPO.dkr.ecr.$AWS_REGION.amazonaws.com/juno-innovations|g" \
         -e "s|REPLACE_REGION|$AWS_REGION|g" \
         "${JUNO_BOOTSTRAP_ROOT}deployments/existing-sig/aws/aws_template.yaml" > "$AWS_VALUES_FILE"
