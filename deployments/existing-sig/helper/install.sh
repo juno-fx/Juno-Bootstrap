@@ -29,10 +29,10 @@ check_command helm "Please install Helm: https://helm.sh/docs/intro/install/"
 check_command git "Please install Git: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git"
 
 AWS_REGION=""
-echo "📋 Please be aware if AWS market place is enabled, changes to your AWS account will be made to allow for licensing of Juno"
-# --- Verify EKS Market Place ---
-prompt AWS_MARKET_PLACE "🏪 Is the target deployment facilitated by AWS Marketplace? [y/N]: " "N"
-if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
+echo "📋 Please be aware if AWS marketplace is enabled, changes to your AWS account will be made to allow for licensing of Juno"
+# --- Verify EKS marketplace ---
+prompt AWS_MARKETPLACE "🏪 Is the target deployment facilitated by AWS Marketplace? [y/N]: " "N"
+if [[ "$AWS_MARKETPLACE" =~ ^[Yy]$ ]]; then
     check_command aws "Please install aws: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html"
     check_command eksctl "Please install eksctl: https://docs.aws.amazon.com/eks/latest/eksctl/installation.html"
 
@@ -102,7 +102,7 @@ if ! kubectl get namespace argocd >/dev/null 2>&1; then
 fi
 
 # --- Setup AWS cluster licensing ---
-if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
+if [[ "$AWS_MARKETPLACE" =~ ^[Yy]$ ]]; then
     CLUSTERS=$(eksctl get cluster | awk 'NR>1 {print $1}' | paste -s -d, -)
     CURRENT_CONTEXT=$(kubectl config view --minify --output jsonpath='{.clusters[0].name}' | awk -F'/' '{print $NF}')
     echo "📜 Setting up license IAM policy"
@@ -116,14 +116,20 @@ if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
     fi
 
     ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
-    CONSUME_POLICY_NAME=genesis-license-consume-policy
+    CONSUME_POLICY_NAME=genesis-license-consume-policy-$CLUSTER
     CONSUME_POLICY_ARN="arn:aws:iam::${ACCOUNT_ID}:policy/${CONSUME_POLICY_NAME}"
-
+    CONSUME_POLICY_CREATE=true
     if aws iam get-policy --policy-arn "$CONSUME_POLICY_ARN" > /dev/null 2>&1; then
-        echo "Consume policy already exists, skipping creation: $CONSUME_POLICY_ARN"
-    # Your script logic for when it exists goes here
-    else
+        prompt RECREATE "Consume policy already exists, force recreate? [y/N]: " "N"
+        if [[ "$RECREATE" =~ ^[Yy]$ ]]; then
+            aws iam delete-policy --policy-arn "$CONSUME_POLICY_ARN" 2>/dev/null
+         else
+            CONSUME_POLICY_CREATE=false
+        fi
+    fi
+
     echo "- Setting up IAM policies for Juno licensing"
+    if [ "$CONSUME_POLICY_CREATE" = true ]; then
         CONSUME_POLICY_ARN=$(aws iam create-policy \
             --policy-name "$CONSUME_POLICY_NAME" \
             --policy-document '{
@@ -147,11 +153,19 @@ if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
             --output text)
     fi
 
-    LIST_POLICY_NAME=genesis-license-list-policy
+    LIST_POLICY_NAME=genesis-license-list-policy-$CLUSTER
     LIST_POLICY_ARN="arn:aws:iam::${ACCOUNT_ID}:policy/${LIST_POLICY_NAME}"
+    LIST_POLICY_CREATE=true
     if aws iam get-policy --policy-arn "$LIST_POLICY_ARN" > /dev/null 2>&1; then
-        echo "List policy already exists, skipping creation: $LIST_POLICY_ARN"
-    else
+        prompt RECREATE "List policy already exists, force recreate? [y/N]: " "N"
+        if [[ "$RECREATE" =~ ^[Yy]$ ]]; then
+            aws iam delete-policy --policy-arn "$LIST_POLICY_ARN" 2>/dev/null
+        else
+            LIST_POLICY_CREATE=false
+        fi
+    fi
+
+    if [ "$LIST_POLICY_CREATE" = true ]; then
         LIST_POLICY_ARN=$(aws iam create-policy \
             --policy-name "$LIST_POLICY_NAME" \
             --policy-document '{
@@ -171,16 +185,27 @@ if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
             --output text)
     fi
 
-    if eksctl get iamserviceaccount --cluster "$CLUSTER" --namespace argocd | grep -w "genesis" > /dev/null 2>&1; then
-        echo "Service IAM account 'genesis' already exists in namespace 'argocd'. Skipping..."
-    else
-        echo "Creating Service IAM account 'genesis'..."
+    OVERRIDE=""
+    CREATE_SA=true
+    if eksctl get iamserviceaccount --cluster "$CLUSTER" --namespace argocd 2>/dev/null | grep -w "genesis" > /dev/null 2>&1; then
+        prompt RECREATE "IAM service account already exists, force recreate? [y/N]: " "N"
+        if [[ "$RECREATE" =~ ^[Yy]$ ]]; then
+            OVERRIDE="--override-existing-serviceaccounts"
+        else
+            CREATE_SA=false
+        fi
+    fi
+
+    if [ "$CREATE_SA" = true ]; then
+        echo "Creating/Updating Service IAM account 'genesis'..."
+        # Evaluated $OVERRIDE inline so it applies correctly when string is empty or populated
         eksctl create iamserviceaccount \
             --name genesis \
             --namespace argocd \
             --cluster "$CLUSTER" \
             --attach-policy-arn "$LIST_POLICY_ARN" \
             --attach-policy-arn "$CONSUME_POLICY_ARN" \
+            $OVERRIDE \
             --approve
     fi
 fi
@@ -219,7 +244,7 @@ echo "✅ Using values files:"
 echo "   - Defaults: $BARE_VALUES"
 echo "   - Overrides: $USER_VALUES"
 
-if [[ "$AWS_MARKET_PLACE" =~ ^[Yy]$ ]]; then
+if [[ "$AWS_MARKETPLACE" =~ ^[Yy]$ ]]; then
     AWS_VALUES="${JUNO_BOOTSTRAP_ROOT}/deployments/existing-sig/aws/aws.yaml"
     if [[ ! -f "$AWS_VALUES" ]]; then
         echo "❌ AWS values file not found at $AWS_VALUES"
