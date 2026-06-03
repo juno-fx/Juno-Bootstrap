@@ -27,6 +27,12 @@ spec:
         parameters:
           - name: "env.NEXTAUTH_URL"
             value: "{{ .Values.genesis.config.http_scheme }}://{{ .Values.genesis.config.host }}/api/auth"
+          {{- if .Values.aws_marketplace.enabled }}
+          - name: "env.AWS_MARKETPLACE"
+            value: enabled
+          - name: "env.AWS_REGION"
+            value: {{ .Values.aws_region }}
+          {{- end }}
   syncPolicy:
     automated:
       prune: true

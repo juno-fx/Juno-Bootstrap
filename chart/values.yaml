@@ -13,7 +13,7 @@ auth:
 genesis:
   repoURL: "https://github.com/juno-fx/Genesis-Deployment.git"
   chartPath: ./
-  version: "v4.0.1"
+  version: "v4.1.0"
   config:
     host:
     http_scheme: https
@@ -28,3 +28,4 @@ ingress:
   config:
     controller:
       kind: DaemonSet
+aws_marketplace: {}
