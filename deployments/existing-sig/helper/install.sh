@@ -5,7 +5,6 @@ set -euo pipefail
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 # shellcheck source=helper/lib.sh
 JUNO_BOOTSTRAP_ROOT="${SCRIPT_DIR}/../../../"
-AWS_JUNO_REPO=709825985650
 source "${JUNO_BOOTSTRAP_ROOT}/helper/lib.sh"
 
 echo
