@@ -13,6 +13,18 @@ echo "   🚀 Official Juno Innovations Existing Cluster Installer"
 echo "==============================================="
 echo
 
+# --- Check prerequisites ---
+check_command() {
+    local cmd="$1"
+    local install_hint="$2"
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+        echo "❌ Required command '$cmd' not found. $install_hint"
+        exit 1
+    fi
+}
+
+check_command kubectl "Please install kubectl: https://kubernetes.io/docs/tasks/tools/"
+
 AWS_REGION=""
 echo "📋 Please be aware if AWS marketplace is enabled, changes to your AWS account will be made to allow for licensing of Juno"
 # --- Verify EKS marketplace ---

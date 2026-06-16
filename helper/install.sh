@@ -26,7 +26,6 @@ GENESIS_VERSION="${GENESIS_VERSION:-v4.1.0}"
 INGRESS_REPO_URL="${INGRESS_REPO_URL:-https://kubernetes.github.io/ingress-nginx}"
 INGRESS_VERSION="${INGRESS_VERSION:-4.12.1}"
 
-check_command kubectl "Please install kubectl: https://kubernetes.io/docs/tasks/tools/"
 check_command helm "Please install Helm: https://helm.sh/docs/intro/install/"
 check_command git "Please install Git: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git"
 
