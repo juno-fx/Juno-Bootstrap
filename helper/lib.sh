@@ -93,3 +93,13 @@ check_host_resources(){
         echo "🏆 All resource requirements met!"
     fi
 }
+
+# --- Check prerequisites ---
+check_command() {
+    local cmd="$1"
+    local install_hint="$2"
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+        echo "❌ Required command '$cmd' not found. $install_hint"
+        exit 1
+    fi
+}

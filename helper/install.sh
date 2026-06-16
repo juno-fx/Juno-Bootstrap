@@ -26,11 +26,8 @@ GENESIS_VERSION="${GENESIS_VERSION:-v4.1.0}"
 INGRESS_REPO_URL="${INGRESS_REPO_URL:-https://kubernetes.github.io/ingress-nginx}"
 INGRESS_VERSION="${INGRESS_VERSION:-4.12.1}"
 
-# Minimum resource limits
-MEMORY_LIMIT_GB=16
-CPU_LIMIT_CORE=4
-echo "❓ Checking available host resources..."
-check_host_resources
+check_command helm "Please install Helm: https://helm.sh/docs/intro/install/"
+check_command git "Please install Git: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git"
 
 # Hostname (always ask, show system default as suggested value)
 SYSTEM_HOST="$(hostname -f)"
@@ -174,6 +171,11 @@ while [[ -z "$TARGET_SCRIPT" ]]; do
             TARGET_SCRIPT="existing-sig/helper/install.sh"
             ;;
         2|"On Prem K3s"|"onprem")
+            # Minimum resource limits
+            MEMORY_LIMIT_GB=16
+            CPU_LIMIT_CORE=4
+            echo "❓ Checking available host resources..."
+            check_host_resources
             TARGET_SCRIPT="on-prem-sig/helper/install.sh"
             ;;
         *)
