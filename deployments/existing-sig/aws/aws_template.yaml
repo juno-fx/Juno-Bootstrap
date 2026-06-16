@@ -1,21 +1,3 @@
 aws_marketplace:
   enabled: true
 aws_region: REPLACE_REGION
-genesis:
-  config:
-    registry: REPLACE_REGISTRY
-    image:
-      registry: REPLACE_REGISTRY
-      repository: genesis-ecr
-    titan:
-      image:
-        registry: REPLACE_REGISTRY
-        repository: titan-ecr
-    terra:
-      image:
-        registry: REPLACE_REGISTRY
-        repository: terra-ecr
-    rhea:
-      image:
-        registry: REPLACE_REGISTRY
-        repository: rhea-ecr

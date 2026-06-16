@@ -5,7 +5,6 @@ set -euo pipefail
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 # shellcheck source=helper/lib.sh
 JUNO_BOOTSTRAP_ROOT="${SCRIPT_DIR}/../../../"
-AWS_JUNO_REPO=709825985650
 source "${JUNO_BOOTSTRAP_ROOT}/helper/lib.sh"
 
 echo
@@ -51,7 +50,6 @@ if [[ "$AWS_MARKETPLACE" =~ ^[Yy]$ ]]; then
     AWS_VALUES_FILE="${JUNO_BOOTSTRAP_ROOT}deployments/existing-sig/aws/aws.yaml"
     echo "📝 Writing AWS values $AWS_VALUES_FILE..."
     sed \
-        -e "s|REPLACE_REGISTRY|$AWS_JUNO_REPO.dkr.ecr.$AWS_REGION.amazonaws.com/juno-innovations|g" \
         -e "s|REPLACE_REGION|$AWS_REGION|g" \
         "${JUNO_BOOTSTRAP_ROOT}deployments/existing-sig/aws/aws_template.yaml" > "$AWS_VALUES_FILE"
 
