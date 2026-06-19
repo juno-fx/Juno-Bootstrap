@@ -183,7 +183,12 @@ if [[ "$AWS_MARKETPLACE" =~ ^[Yy]$ ]]; then
 
     if ! aws iam get-role --role-name AWSServiceRoleForAWSLicenseManagerRole >/dev/null 2>&1; then
         echo "License Manager role does not exist. Creating AWSServiceRoleForAWSLicenseManager..."
-        aws iam create-service-linked-role --aws-service-name license-manager.amazonaws.com
+        if aws iam create-service-linked-role --aws-service-name license-manager.amazonaws.com; then
+            echo "Role created successfully."
+        else
+            echo "Failed to create role." >&2
+            exit 1
+        fi
     else
         echo "AWSServiceRoleForAWSLicenseManager already exists. Skipping."
     fi
