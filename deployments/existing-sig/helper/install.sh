@@ -181,6 +181,18 @@ if [[ "$AWS_MARKETPLACE" =~ ^[Yy]$ ]]; then
             --output text)
     fi
 
+    if ! aws iam get-role --role-name AWSServiceRoleForAWSLicenseManagerRole >/dev/null 2>&1; then
+        echo "License Manager role does not exist. Creating AWSServiceRoleForAWSLicenseManagerRole..."
+        if aws iam create-service-linked-role --aws-service-name license-manager.amazonaws.com; then
+            echo "Role created successfully."
+        else
+            echo "Failed to create role." >&2
+            exit 1
+        fi
+    else
+        echo "AWSServiceRoleForAWSLicenseManagerRole already exists. Skipping."
+    fi
+
     OVERRIDE=""
     CREATE_SA=true
     if eksctl get iamserviceaccount --cluster "$CLUSTER" --namespace argocd 2>/dev/null | grep -w "genesis" > /dev/null 2>&1; then
