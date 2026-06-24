@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+ARGO_VERSION=v3.4.4
+
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 # shellcheck source=helper/lib.sh
 JUNO_BOOTSTRAP_ROOT="${SCRIPT_DIR}/../../../"
@@ -221,7 +223,7 @@ fi
 # --- Check if ArgoCD is installed ---
 if ! kubectl get deployment -n argocd argocd-server >/dev/null 2>&1; then
     echo "⚡ ArgoCD not detected in 'argocd' namespace. Installing ArgoCD..."
-    kubectl create -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+    kubectl create -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/$ARGO_VERSION/manifests/install.yaml
     echo "✅ ArgoCD installation triggered. Waiting for server deployment to be ready..."
     kubectl rollout status deployment/argocd-server -n argocd
 fi
