@@ -17,15 +17,25 @@ echo
 
 TAR_FILE="juno-oneclick.tar.gz"
 
+detect_arch() {
+    case "$(uname -m)" in
+        x86_64|amd64) echo "amd64" ;;
+        aarch64|arm64) echo "arm64" ;;
+        *) echo "❌ Unsupported architecture: $(uname -m)" >&2; exit 1 ;;
+    esac
+}
+
 download_latest_oneclick() {
+    local ARCH
+    ARCH=$(detect_arch)
+
     echo "📦 Fetching the latest installer release..."
     LATEST_TAG=$(curl -s https://api.github.com/repos/juno-fx/K8s-Playbooks/releases/latest \
         | grep '"tag_name":' \
         | sed -E 's/.*"tag_name":\s*"([^"]+)".*/\1/')
     echo "🔖 Latest tag found: $LATEST_TAG"
-
-    echo "📥 Downloading installer tarball to $TAR_FILE ..."
-    curl -fsSL -o "$TAR_FILE" "https://github.com/juno-fx/K8s-Playbooks/releases/download/${LATEST_TAG}/juno-oneclick.tar.gz"
+    echo "📥 Downloading installer tarball for $ARCH to $TAR_FILE ..."
+    curl -fsSL -o "$TAR_FILE" "https://github.com/juno-fx/K8s-Playbooks/releases/download/${LATEST_TAG}/juno-oneclick-${ARCH}.tar.gz"
     echo "✅ Download complete."
     echo
 }
