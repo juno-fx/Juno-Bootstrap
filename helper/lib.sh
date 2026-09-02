@@ -98,8 +98,26 @@ check_host_resources(){
 check_command() {
     local cmd="$1"
     local install_hint="$2"
+    local exit_on_fail="${3:-y}"
     if ! command -v "$cmd" >/dev/null 2>&1; then
         echo "❌ Required command '$cmd' not found. $install_hint"
+        if [[ $exit_on_fail == "y" ]]; then
+            exit 1
+        fi
+        return 1
+    fi
+    return 0
+}
+
+install_helm() {
+    curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+    chmod 700 get_helm.sh
+
+    if ! ./get_helm.sh; then
+        echo "❌ Failed to install helm, exiting"
+        rm -f get_helm.sh
         exit 1
     fi
+
+    rm -f get_helm.sh
 }

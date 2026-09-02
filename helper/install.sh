@@ -26,8 +26,15 @@ GENESIS_VERSION="${GENESIS_VERSION:-v5.6.0}"
 INGRESS_REPO_URL="${INGRESS_REPO_URL:-https://kubernetes.github.io/ingress-nginx}"
 INGRESS_VERSION="${INGRESS_VERSION:-4.12.1}"
 
-check_command helm "Please install Helm: https://helm.sh/docs/intro/install/"
-check_command git "Please install Git: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git"
+check_command curl "Please install curl:" "y"
+check_command git "Please install Git: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git" "y"
+
+if ! check_command helm "⎈ Please install Helm: https://helm.sh/docs/intro/install/" "n"; then
+    prompt INSTALL_HELM "⎈ Helm is not installed, install it now?: [y/N]: " "N"
+    if [[ $INSTALL_HELM == "y" ]]; then
+        install_helm
+    fi
+fi
 
 # Hostname (always ask, show system default as suggested value)
 SYSTEM_HOST="$(hostname -f)"
