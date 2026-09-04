@@ -114,7 +114,7 @@ if [[ "$AWS_MARKETPLACE" =~ ^[Yy]$ ]]; then
     fi
 
     ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
-    CONSUME_POLICY_NAME=genesis-license-consume-policy-$CLUSTER
+    CONSUME_POLICY_NAME=juno-license-consume-policy-$CLUSTER
     CONSUME_POLICY_ARN="arn:aws:iam::${ACCOUNT_ID}:policy/${CONSUME_POLICY_NAME}"
     CONSUME_POLICY_CREATE=true
     if aws iam get-policy --policy-arn "$CONSUME_POLICY_ARN" > /dev/null 2>&1; then
@@ -151,7 +151,7 @@ if [[ "$AWS_MARKETPLACE" =~ ^[Yy]$ ]]; then
             --output text)
     fi
 
-    LIST_POLICY_NAME=genesis-license-list-policy-$CLUSTER
+    LIST_POLICY_NAME=juno-license-list-policy-$CLUSTER
     LIST_POLICY_ARN="arn:aws:iam::${ACCOUNT_ID}:policy/${LIST_POLICY_NAME}"
     LIST_POLICY_CREATE=true
     if aws iam get-policy --policy-arn "$LIST_POLICY_ARN" > /dev/null 2>&1; then
@@ -195,10 +195,11 @@ if [[ "$AWS_MARKETPLACE" =~ ^[Yy]$ ]]; then
         echo "AWSServiceRoleForAWSLicenseManagerRole already exists. Skipping."
     fi
 
+    # --- Setup Service IAM account for genesis ---
     OVERRIDE=""
     CREATE_SA=true
     if eksctl get iamserviceaccount --cluster "$CLUSTER" --namespace argocd 2>/dev/null | grep -w "genesis" > /dev/null 2>&1; then
-        prompt RECREATE "IAM service account already exists, force recreate? [y/N]: " "N"
+        prompt RECREATE "IAM service account 'genesis' already exists, force recreate? [y/N]: " "N"
         if [[ "$RECREATE" =~ ^[Yy]$ ]]; then
             OVERRIDE="--override-existing-serviceaccounts"
         else
@@ -216,6 +217,30 @@ if [[ "$AWS_MARKETPLACE" =~ ^[Yy]$ ]]; then
             --attach-policy-arn "$LIST_POLICY_ARN" \
             --attach-policy-arn "$CONSUME_POLICY_ARN" \
             $OVERRIDE \
+            --approve
+    fi
+
+    # --- Setup Service IAM account for metrics-gatherer ---
+    OVERRIDE_METRICS=""
+    CREATE_METRICS_SA=true
+    if eksctl get iamserviceaccount --cluster "$CLUSTER" --namespace argocd 2>/dev/null | grep -w "metrics-gatherer" > /dev/null 2>&1; then
+        prompt RECREATE_METRICS "IAM service account 'metrics-gatherer' already exists, force recreate? [y/N]: " "N"
+        if [[ "$RECREATE_METRICS" =~ ^[Yy]$ ]]; then
+            OVERRIDE_METRICS="--override-existing-serviceaccounts"
+        else
+            CREATE_METRICS_SA=false
+        fi
+    fi
+
+    if [ "$CREATE_METRICS_SA" = true ]; then
+        echo "Creating/Updating Service IAM account 'metrics-gatherer'..."
+        eksctl create iamserviceaccount \
+            --name metrics-gatherer \
+            --namespace argocd \
+            --cluster "$CLUSTER" \
+            --attach-policy-arn "$LIST_POLICY_ARN" \
+            --attach-policy-arn "$CONSUME_POLICY_ARN" \
+            $OVERRIDE_METRICS \
             --approve
     fi
 fi
