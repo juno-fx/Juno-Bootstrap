@@ -114,7 +114,7 @@ if [[ "$AWS_MARKETPLACE" =~ ^[Yy]$ ]]; then
     fi
 
     ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
-    CONSUME_POLICY_NAME=juno-license-consume-policy-$CLUSTER
+    CONSUME_POLICY_NAME=genesis-license-consume-policy-$CLUSTER
     CONSUME_POLICY_ARN="arn:aws:iam::${ACCOUNT_ID}:policy/${CONSUME_POLICY_NAME}"
     CONSUME_POLICY_CREATE=true
     if aws iam get-policy --policy-arn "$CONSUME_POLICY_ARN" > /dev/null 2>&1; then
@@ -151,7 +151,7 @@ if [[ "$AWS_MARKETPLACE" =~ ^[Yy]$ ]]; then
             --output text)
     fi
 
-    LIST_POLICY_NAME=juno-license-list-policy-$CLUSTER
+    LIST_POLICY_NAME=genesis-license-list-policy-$CLUSTER
     LIST_POLICY_ARN="arn:aws:iam::${ACCOUNT_ID}:policy/${LIST_POLICY_NAME}"
     LIST_POLICY_CREATE=true
     if aws iam get-policy --policy-arn "$LIST_POLICY_ARN" > /dev/null 2>&1; then
