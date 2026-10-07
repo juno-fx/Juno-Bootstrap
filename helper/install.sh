@@ -153,7 +153,9 @@ echo "✅ $VALUES_FILE has been created with your configuration."
 echo
 
 if [[ -n "${INGRESS_CHART_PATH:-}" ]]; then
-    sed -i "/^ingress:/a\  chartPath: ${INGRESS_CHART_PATH}" "$VALUES_FILE"
+    # awk instead of sed -i so this works with both GNU and BSD (macOS) tooling
+    awk -v path="$INGRESS_CHART_PATH" '{ print } /^ingress:/ { print "  chartPath: " path }' \
+        "$VALUES_FILE" > "$VALUES_FILE.tmp" && mv "$VALUES_FILE.tmp" "$VALUES_FILE"
 fi
 
 # --- Deployment Target Selection ---
