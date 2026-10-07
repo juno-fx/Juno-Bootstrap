@@ -131,3 +131,13 @@ install_helm() {
 
     rm -f get_helm.sh
 }
+
+set_chart_path() {
+    local file="$1" section="$2" path="$3"
+    awk -v s="$section" -v p="$path" '
+        BEGIN { found = 0 }
+        { print }
+        $0 ~ "^" s ":[[:space:]]*$" && !found { print "  chartPath: \"" p "\""; found = 1 }
+        END { if (!found) { print s ":"; print "  chartPath: \"" p "\"" } }
+    ' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
+}
