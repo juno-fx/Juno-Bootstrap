@@ -59,11 +59,6 @@ fi
 VALUES_FILE=".values.yaml"
 echo "📝 Writing final $VALUES_FILE..."
 sed \
-    -e "s|REPLACE-HOST|$HOSTNAME|g" \
-    -e "s|REPLACE-EMAIL|$OWNER_EMAIL|g" \
-    -e "s|REPLACE-PASSWORD|$OWNER_PASSWORD|g" \
-    -e "s|REPLACE-OWNER|$USERNAME|g" \
-    -e "s|REPLACE-UID|$USER_UID|g" \
     -e "s|REPLACE-GENESIS-URL|$GENESIS_REPO_URL|g" \
     -e "s|REPLACE-GENESIS-VERSION|$GENESIS_VERSION|g" \
     -e "s|REPLACE-INGRESS-URL|$INGRESS_REPO_URL|g" \
