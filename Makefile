@@ -2,6 +2,7 @@
 
 # vars
 PROJECT="genesis"
+GENESIS_NAMESPACE ?= argocd
 
 package:
 	@rm -rf .orion-helper-scripts orion-install-helper
@@ -20,10 +21,10 @@ cluster:
 	@kind create cluster --name $(PROJECT) --config .kind.yaml || echo "Cluster already exists..."
 
 argocd:
-	@kubectl create namespace argocd || echo "Argo namespace already exists..."
-	@kubectl create -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+	@kubectl create namespace $(GENESIS_NAMESPACE) || echo "Argo namespace already exists..."
+	@kubectl create -n $(GENESIS_NAMESPACE)  -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 	@sleep 15
-	@kubectl wait --namespace argocd \
+	@kubectl wait --namespace $(GENESIS_NAMESPACE)  \
 		--for=condition=ready pod \
 		--selector=app.kubernetes.io/name=argocd-server \
 		--timeout=90s
@@ -41,11 +42,11 @@ ingress:
 
 bootstrap: cluster argocd ingress
 	@echo "Running Bootstrap..."
-	@helm upgrade -n argocd -i -f test.values.yaml $(PROJECT) ./chart/
+	@helm upgrade -n $(GENESIS_NAMESPACE)  -i -f test.values.yaml $(PROJECT) ./chart/
 	@sleep 5
-	@kubectl get deployments -n argocd -o name | xargs -n1 kubectl rollout restart -n argocd
+	@kubectl get deployments -n $(GENESIS_NAMESPACE)  -o name | xargs -n1 kubectl rollout restart -n $(GENESIS_NAMESPACE) 
 	@sleep 5
-	@watch kubectl get applications -n argocd
+	@watch kubectl get applications -n $(GENESIS_NAMESPACE) 
 
 down:
 	@kind delete cluster --name $(PROJECT)
