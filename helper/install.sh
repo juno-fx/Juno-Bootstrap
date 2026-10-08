@@ -36,83 +36,6 @@ if ! check_command helm "⚓ Please install Helm: https://helm.sh/docs/intro/ins
     fi
 fi
 
-# Hostname (always ask, show system default as suggested value)
-SYSTEM_HOST="$(hostname -f)"
-SYSTEM_HOST="${SYSTEM_HOST:-orion.example.local}"
-prompt INPUT_HOST "🌐 Enter the server's public DNS hostname [$SYSTEM_HOST]: " "$SYSTEM_HOST"
-HOSTNAME="$INPUT_HOST"
-
-# Validate that it's not an IP address
-if [[ "$HOSTNAME" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-    echo "❌ Error: IP addresses are not allowed. Must be a DNS hostname."
-    exit 1
-fi
-
-# Owner email (env override: OWNER_EMAIL)
-prompt OWNER_EMAIL "📧 Enter the owner email: " "${OWNER_EMAIL:-}"
-
-# Owner password (env override: OWNER_PASSWORD)
-while true; do 
-    prompt OWNER_PASSWORD "🔑 Enter the temporary password for the owner: " "${OWNER_PASSWORD:-}" true
-    prompt CONFIRM_PASSWORD "🔐 Confirm password for the owner: " "${CONFIRM_PASSWORD:-}" true
-    if [[ "$OWNER_PASSWORD" = "$CONFIRM_PASSWORD" ]]; then
-        break
-    else
-        echo "❌ Passwords do not match."
-    fi
-done
-
-
-# Username (env override: USERNAME)
-while true; do
-    prompt USERNAME "👤 Enter the username (letters only): " "${USERNAME:-}"
-    if [[ "$USERNAME" =~ ^[A-Za-z]+$ ]]; then
-        break
-    else
-        echo "❌ Invalid username. Must contain only letters (A–Z, a–z)."
-    fi
-done
-
-# UID (env override: USER_UID)
-while true; do
-    prompt USER_UID "🆔 Enter the UID for that user: " "${USER_UID:-}"
-    if [[ "$USER_UID" =~ ^[0-9]+$ ]] && [[ "$USER_UID" -gt 999 ]]; then
-        break
-    else
-        echo "❌ Invalid UID. Must be 1000 or higher"
-    fi
-done
-
-echo
-echo "==============================================="
-echo "   ✅ Collected Installation Information"
-echo "-----------------------------------------------"
-echo "Hostname:        $HOSTNAME"
-echo "Owner Email:     $OWNER_EMAIL"
-echo "Owner Password:  [hidden]"
-echo "Username:        $USERNAME"
-echo "UID:             $USER_UID"
-echo "==============================================="
-echo
-
-# Confirmation (Y to proceed, default N)
-if [[ "${AUTO_CONFIRM:-}" =~ ^[Yy]$ ]]; then
-    echo "⚡ AUTO_CONFIRM enabled — skipping prompt."
-else
-    prompt CONFIRM "❓ Is this information correct? [y/N]: " "N"
-    case "$CONFIRM" in
-        [Yy])
-            echo "👍 Proceeding..."
-            ;;
-        *)
-            echo "❌ Installation aborted by user."
-            exit 1
-            ;;
-    esac
-fi
-
-
-
 prompt IS_OFFLINE_INSTALL "📦 Is this an offline installation? [y/N]: " "${IS_OFFLINE_INSTALL:-N}"
 
 if [[ "$IS_OFFLINE_INSTALL" =~ ^[Yy]$ ]]; then
@@ -136,11 +59,6 @@ fi
 VALUES_FILE=".values.yaml"
 echo "📝 Writing final $VALUES_FILE..."
 sed \
-    -e "s|REPLACE-HOST|$HOSTNAME|g" \
-    -e "s|REPLACE-EMAIL|$OWNER_EMAIL|g" \
-    -e "s|REPLACE-PASSWORD|$OWNER_PASSWORD|g" \
-    -e "s|REPLACE-OWNER|$USERNAME|g" \
-    -e "s|REPLACE-UID|$USER_UID|g" \
     -e "s|REPLACE-GENESIS-URL|$GENESIS_REPO_URL|g" \
     -e "s|REPLACE-GENESIS-VERSION|$GENESIS_VERSION|g" \
     -e "s|REPLACE-INGRESS-URL|$INGRESS_REPO_URL|g" \
@@ -152,10 +70,11 @@ sed \
 echo "✅ $VALUES_FILE has been created with your configuration."
 echo
 
+if [[ -n "${GENESIS_CHART_PATH:-}" ]]; then
+    set_chart_path "$VALUES_FILE" "genesis" "$GENESIS_CHART_PATH"
+fi
 if [[ -n "${INGRESS_CHART_PATH:-}" ]]; then
-    # awk instead of sed -i so this works with both GNU and BSD (macOS) tooling
-    awk -v path="$INGRESS_CHART_PATH" '{ print } /^ingress:/ { print "  chartPath: " path }' \
-        "$VALUES_FILE" > "$VALUES_FILE.tmp" && mv "$VALUES_FILE.tmp" "$VALUES_FILE"
+    set_chart_path "$VALUES_FILE" "ingress" "$INGRESS_CHART_PATH"
 fi
 
 # --- Deployment Target Selection ---
