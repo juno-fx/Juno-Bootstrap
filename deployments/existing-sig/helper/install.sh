@@ -95,7 +95,7 @@ if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
     exit 1
 fi
 
-# --- Ensure argocd namespace exists ---
+# --- Ensure GENESIS_NAMESPACE namespace exists ---
 if ! kubectl get namespace "$GENESIS_NAMESPACE" >/dev/null 2>&1; then
     echo "⚡ ""$GENESIS_NAMESPACE"" namespace not found. Creating it..."
     kubectl create namespace "$GENESIS_NAMESPACE"
