@@ -9,6 +9,9 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 JUNO_BOOTSTRAP_ROOT="${SCRIPT_DIR}/../../../"
 source "${JUNO_BOOTSTRAP_ROOT}/helper/lib.sh"
 
+# Load in the namespace to deploy to
+GENESIS_NAMESPACE="${GENESIS_NAMESPACE:-argocd}"
+
 echo
 echo "==============================================="
 echo "   🚀 Official Juno Innovations Existing Cluster Installer"
@@ -92,11 +95,11 @@ if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
     exit 1
 fi
 
-# --- Ensure argocd namespace exists ---
-if ! kubectl get namespace argocd >/dev/null 2>&1; then
-    echo "⚡ 'argocd' namespace not found. Creating it..."
-    kubectl create namespace argocd
-    echo "✅ 'argocd' namespace created."
+# --- Ensure GENESIS_NAMESPACE namespace exists ---
+if ! kubectl get namespace "$GENESIS_NAMESPACE" >/dev/null 2>&1; then
+    echo "⚡ ""$GENESIS_NAMESPACE"" namespace not found. Creating it..."
+    kubectl create namespace "$GENESIS_NAMESPACE"
+    echo "✅ ""$GENESIS_NAMESPACE"" namespace created."
 fi
 
 # --- Setup AWS cluster licensing ---
@@ -198,7 +201,7 @@ if [[ "$AWS_MARKETPLACE" =~ ^[Yy]$ ]]; then
     # --- Setup Service IAM account for genesis ---
     OVERRIDE=""
     CREATE_SA=true
-    if eksctl get iamserviceaccount --cluster "$CLUSTER" --namespace argocd 2>/dev/null | grep -w "genesis" > /dev/null 2>&1; then
+    if eksctl get iamserviceaccount --cluster "$CLUSTER" --namespace "$GENESIS_NAMESPACE" 2>/dev/null | grep -w "genesis" > /dev/null 2>&1; then
         prompt RECREATE "IAM service account 'genesis' already exists, force recreate? [y/N]: " "N"
         if [[ "$RECREATE" =~ ^[Yy]$ ]]; then
             OVERRIDE="--override-existing-serviceaccounts"
@@ -212,7 +215,7 @@ if [[ "$AWS_MARKETPLACE" =~ ^[Yy]$ ]]; then
         # Evaluated $OVERRIDE inline so it applies correctly when string is empty or populated
         eksctl create iamserviceaccount \
             --name genesis \
-            --namespace argocd \
+            --namespace "$GENESIS_NAMESPACE" \
             --cluster "$CLUSTER" \
             --attach-policy-arn "$LIST_POLICY_ARN" \
             --attach-policy-arn "$CONSUME_POLICY_ARN" \
@@ -223,7 +226,7 @@ if [[ "$AWS_MARKETPLACE" =~ ^[Yy]$ ]]; then
     # --- Setup Service IAM account for metrics-gatherer ---
     OVERRIDE_METRICS=""
     CREATE_METRICS_SA=true
-    if eksctl get iamserviceaccount --cluster "$CLUSTER" --namespace argocd 2>/dev/null | grep -w "metrics-gatherer" > /dev/null 2>&1; then
+    if eksctl get iamserviceaccount --cluster "$CLUSTER" --namespace "$GENESIS_NAMESPACE" 2>/dev/null | grep -w "metrics-gatherer" > /dev/null 2>&1; then
         prompt RECREATE_METRICS "IAM service account 'metrics-gatherer' already exists, force recreate? [y/N]: " "N"
         if [[ "$RECREATE_METRICS" =~ ^[Yy]$ ]]; then
             OVERRIDE_METRICS="--override-existing-serviceaccounts"
@@ -236,7 +239,7 @@ if [[ "$AWS_MARKETPLACE" =~ ^[Yy]$ ]]; then
         echo "Creating/Updating Service IAM account 'metrics-gatherer'..."
         eksctl create iamserviceaccount \
             --name metrics-gatherer \
-            --namespace argocd \
+            --namespace "$GENESIS_NAMESPACE" \
             --cluster "$CLUSTER" \
             --attach-policy-arn "$LIST_POLICY_ARN" \
             --attach-policy-arn "$CONSUME_POLICY_ARN" \
@@ -246,11 +249,13 @@ if [[ "$AWS_MARKETPLACE" =~ ^[Yy]$ ]]; then
 fi
 
 # --- Check if ArgoCD is installed ---
-if ! kubectl get deployment -n argocd argocd-server >/dev/null 2>&1; then
-    echo "⚡ ArgoCD not detected in 'argocd' namespace. Installing ArgoCD..."
-    kubectl create -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/$ARGO_VERSION/manifests/install.yaml
+if ! kubectl get deployment -n "$GENESIS_NAMESPACE" argocd-server >/dev/null 2>&1; then
+    echo "⚡ ArgoCD not detected in ""$GENESIS_NAMESPACE"" namespace. Installing ArgoCD..."
+    curl -sL https://raw.githubusercontent.com/argoproj/argo-cd/$ARGO_VERSION/manifests/install.yaml \
+        | sed "s/namespace: argocd/namespace: $GENESIS_NAMESPACE/g" \
+        | kubectl apply --server-side --force-conflicts -n "$GENESIS_NAMESPACE" -f -
     echo "✅ ArgoCD installation triggered. Waiting for server deployment to be ready..."
-    kubectl rollout status deployment/argocd-server -n argocd
+    kubectl rollout status deployment/argocd-server -n "$GENESIS_NAMESPACE"
 fi
 
 # --- Determine chart path inside cloned repo ---
@@ -291,16 +296,16 @@ fi
 
 # --- Perform Helm install ---
 echo
-echo "🚀 Performing Helm install into 'argocd' namespace..."
+echo "🚀 Performing Helm install into ""$GENESIS_NAMESPACE"" namespace..."
 HELM_RELEASE="${HELM_RELEASE:-orion}"
 
 # Install or upgrade via Helm using both -f arguments
-if helm status "$HELM_RELEASE" -n argocd >/dev/null 2>&1; then
+if helm status "$HELM_RELEASE" -n "$GENESIS_NAMESPACE" >/dev/null 2>&1; then
     echo "🔄 Helm release '$HELM_RELEASE' exists, upgrading..."
-    helm upgrade "$HELM_RELEASE" "$CHART_DIR" "${HELM_ARGS[@]}" -n argocd
+    echo helm upgrade "$HELM_RELEASE" "$CHART_DIR" "${HELM_ARGS[@]}" -n "$GENESIS_NAMESPACE"
 else
     echo "📦 Installing Helm release '$HELM_RELEASE'..."
-    helm install "$HELM_RELEASE" "$CHART_DIR" "${HELM_ARGS[@]}" -n argocd
+    helm install "$HELM_RELEASE" "$CHART_DIR" "${HELM_ARGS[@]}" -n "$GENESIS_NAMESPACE"
 fi
 
 echo "✅ Helm deployment completed successfully!"
