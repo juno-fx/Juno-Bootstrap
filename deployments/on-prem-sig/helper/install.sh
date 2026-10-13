@@ -5,6 +5,8 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 # shellcheck source=helper/lib.sh
 source "${SCRIPT_DIR}/../../../helper/lib.sh"
 
+GENESIS_NAMESPACE="${GENESIS_NAMESPACE:-argocd}"
+
 set -euo pipefail
 
 declare -A REGISTRY_MIRRORS_MAP
@@ -126,7 +128,8 @@ fi
 # --- Extract and run the installer ---
 echo "🚀 Running the installer..."
 tar -xzf "$TAR_FILE" -C ./
-sudo ./juno-oneclickfs/juno-oneclick.install ./.values.yaml "k3s_image_folder=$K3S_IMAGE_FOLDER"
+sudo ./juno-oneclickfs/juno-oneclick.install ./.values.yaml \
+  "k3s_image_folder=$K3S_IMAGE_FOLDER genesis_namespace=$GENESIS_NAMESPACE"
 echo "✅ Installation complete!"
 echo
 

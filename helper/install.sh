@@ -25,6 +25,8 @@ GENESIS_REPO_URL="${GENESIS_REPO_URL:-https://github.com/juno-fx/Genesis-Deploym
 GENESIS_VERSION="${GENESIS_VERSION:-v6.0.0}"
 INGRESS_REPO_URL="${INGRESS_REPO_URL:-https://kubernetes.github.io/ingress-nginx}"
 INGRESS_VERSION="${INGRESS_VERSION:-4.12.1}"
+# Load in the namespace to deploy to
+GENESIS_NAMESPACE="${GENESIS_NAMESPACE:-argocd}"
 
 check_command curl "Please install curl:" "y"
 check_command git "Please install Git: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git" "y"
@@ -145,6 +147,7 @@ sed \
     -e "s|REPLACE-GENESIS-VERSION|$GENESIS_VERSION|g" \
     -e "s|REPLACE-INGRESS-URL|$INGRESS_REPO_URL|g" \
     -e "s|REPLACE-INGRESS-VERSION|$INGRESS_VERSION|g" \
+    -e "s|REPLACE-GENESIS-NAMESPACE|$GENESIS_NAMESPACE|g" \
     "$TEMPLATE_FILE" > "$VALUES_FILE"
 
 

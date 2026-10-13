@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: genesis
-  namespace: argocd
+  namespace: {{ .Values.genesis.namespace }}
   finalizers:
     - "resources-finalizer.argocd.argoproj.io"
   annotations:
@@ -11,7 +11,7 @@ spec:
   project: default
   destination:
     server: https://kubernetes.default.svc
-    namespace: argocd
+    namespace: {{ .Values.genesis.namespace }}
   sources:
     - repoURL: {{ .Values.genesis.url }}
 {{- if .Values.genesis.chartPath }}

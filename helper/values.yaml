@@ -18,6 +18,7 @@ auth:
 genesis:
   ### Genesis Helm repo  (REQUIRED)
   url: "REPLACE-GENESIS-URL"
+  namespace: "REPLACE-GENESIS-NAMESPACE"
   ### Genesis Helm repo branch to deploy  (REQUIRED)
   version: "REPLACE-GENESIS-VERSION"
   config:
