@@ -26,11 +26,10 @@ genesis:
       ### Image Pull Secret (Uncomment if using)
       # image_pull_secret:
       ### hostname of the server: my-genesis.example.com  (REQUIRED)
-    host:
     ### defaults to https
     http_scheme: https
     ### Environment Variables
-    env:
+    #env:
       # You must have either Google or AWS Cognito configured.
       # Uncomment one of the following (REQUIRED)
       ### Google OAuth (Uncomment If using)
@@ -61,14 +60,6 @@ genesis:
       # BASIC_AUTH_EMAIL_2: "another-email@example.com"
       # BASIC_AUTH_PASSWORD_2: "another-password"
       ### Owner Configuration
-    titan:
-      # Username of the owner (REQUIRED)
-      owner:
-      # POSIX UID of the owner (REQUIRED)
-      uid:
-      # Email of the owner. This should be the email used by either
-      # of the above configured authentication services. (REQUIRED)
-      email:
 
 # Ingress Overrides
 # https://github.com/kubernetes/ingress-nginx/blob/main/charts/ingress-nginx/values.yaml
