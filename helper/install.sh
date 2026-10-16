@@ -133,6 +133,8 @@ if [[ "$IS_OFFLINE_INSTALL" =~ ^[Yy]$ ]]; then
     prompt INGRESS_VERSION "🏷️  Enter ingress-nginx chart version [${INGRESS_VERSION}]: " "$INGRESS_VERSION"
 fi
 
+prompt GENESIS_NAMESPACE "🪪  Enter which namespace to deploy Orion to: [${GENESIS_NAMESPACE}]: " "$GENESIS_NAMESPACE"
+export GENESIS_NAMESPACE
 
 # Always overwrite .values.yaml with updated content
 VALUES_FILE=".values.yaml"
