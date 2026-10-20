@@ -22,6 +22,7 @@ genesis:
   ### Genesis Helm repo branch to deploy  (REQUIRED)
   version: "REPLACE-GENESIS-VERSION"
   config:
+    host: localhost
     ### Container registry containing the Juno images  (REQUIRED)
     registry: junoinnovations
     ### Image Pull Secret (Uncomment if using)
