@@ -56,7 +56,18 @@ if [[ "$IS_OFFLINE_INSTALL" =~ ^[Yy]$ ]]; then
     prompt INGRESS_VERSION "🏷️  Enter ingress-nginx chart version [${INGRESS_VERSION}]: " "$INGRESS_VERSION"
 fi
 
-prompt GENESIS_NAMESPACE "🪪  Enter which namespace to deploy Orion to: [${GENESIS_NAMESPACE}]: " "$GENESIS_NAMESPACE"
+while true; do
+  prompt GENESIS_NAMESPACE "🪪  Enter which namespace to deploy Orion to: [argocd]: " argocd
+
+  if [[ -z "$GENESIS_NAMESPACE" ]]; then
+    echo "❌ Namespace cannot be empty. Please try again."
+  elif is_reserved_namespace "$GENESIS_NAMESPACE"; then
+    echo "❌ '${GENESIS_NAMESPACE}' is a reserved namespace (${RESERVED_NAMESPACES[*]}). Please choose another."
+    GENESIS_NAMESPACE=""
+  else
+    break
+  fi
+done
 export GENESIS_NAMESPACE
 
 # Always overwrite .values.yaml with updated content
