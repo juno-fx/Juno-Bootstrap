@@ -21,6 +21,8 @@ genesis:
   ### Genesis Helm repo branch to deploy  (REQUIRED)
   version: "v6.1.0"
   config:
+    image:
+      tag: 1680-feat-setup-form
     ### Container registry containing the Juno images  (REQUIRED)
     registry:
       ### Image Pull Secret (Uncomment if using)
