@@ -29,7 +29,7 @@ genesis:
     ### defaults to https
     http_scheme: https
     ### Environment Variables
-    #env:
+    env:
       # You must have either Google or AWS Cognito configured.
       # Uncomment one of the following (REQUIRED)
       ### Google OAuth (Uncomment If using)
