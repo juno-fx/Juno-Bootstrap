@@ -308,4 +308,11 @@ else
     helm install "$HELM_RELEASE" "$CHART_DIR" "${HELM_ARGS[@]}" -n "$GENESIS_NAMESPACE"
 fi
 
+EXTERNAL_IP=$(kubectl get ingress genesis-ingress -n argocd -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+if [[ $EXTERNAL_IP == "" ]]; then
+    EXTERNAL_IP="<TARGET CLUSTERS EXTERNAL IP>" 
+fi
+
 echo "✅ Helm deployment completed successfully!"
+echo "🏁 Congratulations on installing Juno Orion. Please finish the install by completing the Genesis setup wizard: "
+echo "📜 https://${EXTERNAL_IP}/orion/setup"

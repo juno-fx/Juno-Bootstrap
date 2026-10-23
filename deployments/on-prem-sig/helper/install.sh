@@ -147,3 +147,6 @@ fi
 
 sudo rm -rf juno-oneclickfs
 echo "✅ Cleanup complete!"
+
+echo "🏁 Congratulations on installing Juno Orion. Please finish the install by completing the Genesis setup wizard: "
+echo "📜 https://127.0.0.1/orion/setup"
