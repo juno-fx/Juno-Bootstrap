@@ -25,7 +25,6 @@ genesis:
     registry:
       ### Image Pull Secret (Uncomment if using)
       # image_pull_secret:
-      ### hostname of the server: my-genesis.example.com  (REQUIRED)
     ### defaults to https
     http_scheme: https
     ### Environment Variables
