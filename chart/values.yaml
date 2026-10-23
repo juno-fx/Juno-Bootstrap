@@ -15,7 +15,6 @@ genesis:
   chartPath: ./
   version: "v6.1.0"
   config:
-    host:
     http_scheme: https
 ingress:
   enabled: true

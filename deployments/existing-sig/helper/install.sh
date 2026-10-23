@@ -302,10 +302,26 @@ HELM_RELEASE="${HELM_RELEASE:-orion}"
 # Install or upgrade via Helm using both -f arguments
 if helm status "$HELM_RELEASE" -n "$GENESIS_NAMESPACE" >/dev/null 2>&1; then
     echo "🔄 Helm release '$HELM_RELEASE' exists, upgrading..."
-    echo helm upgrade "$HELM_RELEASE" "$CHART_DIR" "${HELM_ARGS[@]}" -n "$GENESIS_NAMESPACE"
+    helm upgrade "$HELM_RELEASE" "$CHART_DIR" "${HELM_ARGS[@]}" -n "$GENESIS_NAMESPACE"
 else
     echo "📦 Installing Helm release '$HELM_RELEASE'..."
     helm install "$HELM_RELEASE" "$CHART_DIR" "${HELM_ARGS[@]}" -n "$GENESIS_NAMESPACE"
 fi
 
+# --- Determine external address (IP on GKE/AKS, hostname on EKS) ---
+EXTERNAL_HOST=""
+for _ in {1..15}; do
+    EXTERNAL_HOST=$(kubectl get ingress genesis-ingress -n "$GENESIS_NAMESPACE" \
+        -o jsonpath='{.status.loadBalancer.ingress[0].hostname}{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || true)
+    [[ -n "$EXTERNAL_HOST" ]] && break
+    echo "⏳ Waiting for load balancer address..."
+    sleep 5
+done
+if [[ -z "$EXTERNAL_HOST" ]]; then
+    
+    EXTERNAL_HOST="<TARGET CLUSTERS EXTERNAL IP OR HOSTNAME>"
+fi
+
 echo "✅ Helm deployment completed successfully!"
+echo "🏁 Congratulations on installing Juno Orion. Please finish the install by completing the Orion Admin setup wizard: "
+echo "📜 https://$EXTERNAL_HOST/orion/setup"
