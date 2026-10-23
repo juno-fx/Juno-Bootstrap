@@ -310,14 +310,15 @@ fi
 
 # --- Determine external address (IP on GKE/AKS, hostname on EKS) ---
 EXTERNAL_HOST=""
-for _ in {1..30}; do
+for _ in {1..15}; do
     EXTERNAL_HOST=$(kubectl get ingress genesis-ingress -n "$GENESIS_NAMESPACE" \
         -o jsonpath='{.status.loadBalancer.ingress[0].hostname}{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || true)
     [[ -n "$EXTERNAL_HOST" ]] && break
     echo "⏳ Waiting for load balancer address..."
-    sleep 10
+    sleep 5
 done
 if [[ -z "$EXTERNAL_HOST" ]]; then
+    
     EXTERNAL_HOST="<TARGET CLUSTERS EXTERNAL IP OR HOSTNAME>"
 fi
 
