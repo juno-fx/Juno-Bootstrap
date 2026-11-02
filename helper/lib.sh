@@ -142,7 +142,7 @@ set_chart_path() {
     ' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
 }
 
-RESERVED_NAMESPACES=("home" "service" "login" "unauthorized" "api" "titan" "terra" "genesis" "kuiper" "hubble" "rhea")
+RESERVED_NAMESPACES=("home" "service" "login" "unauthorized" "api" "titan" "terra" "genesis" "kuiper" "hubble" "rhea" "orion")
 is_reserved_namespace() {
   local ns
   ns="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')"

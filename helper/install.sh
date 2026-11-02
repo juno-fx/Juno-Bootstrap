@@ -57,7 +57,7 @@ if [[ "$IS_OFFLINE_INSTALL" =~ ^[Yy]$ ]]; then
 fi
 
 while true; do
-  prompt GENESIS_NAMESPACE "🪪  Enter which namespace to deploy Orion to: [argocd]: " argocd
+  prompt GENESIS_NAMESPACE "🪪  Enter which namespace to deploy Orion to: [${GENESIS_NAMESPACE}]: " "$GENESIS_NAMESPACE"
 
   if [[ -z "$GENESIS_NAMESPACE" ]]; then
     echo "❌ Namespace cannot be empty. Please try again."
