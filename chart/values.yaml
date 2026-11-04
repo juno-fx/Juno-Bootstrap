@@ -12,7 +12,7 @@ auth:
 #      password: "github_personal_access_token"
 genesis:
   repoURL: "https://github.com/juno-fx/Genesis-Deployment.git"
-  version: "v6.1.0"
+  version: "v6.2.0"
   config:
     http_scheme: https
 ingress:
