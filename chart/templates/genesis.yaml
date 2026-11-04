@@ -25,8 +25,8 @@ spec:
         values: |-
           {{- include "omitNulls" .Values.genesis.config | nindent 10 }}
         parameters:
-          - name: "env.NEXTAUTH_URL"
-            value: "{{ .Values.genesis.config.http_scheme }}://{{ .Values.genesis.config.host }}/api/auth"
+          - name: "env.NEW_CLUSTER"
+            value: "enabled"
           {{- if .Values.aws_marketplace.enabled }}
           - name: "env.AWS_MARKETPLACE"
             value: enabled
